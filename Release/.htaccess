@@ -3,7 +3,7 @@ IndexIgnore *
   SetEnv HTTP_MOD_REWRITE On
   RewriteEngine on
 
-  RewriteBase /AraneaEngine/Development/
+  RewriteBase /AraneaEngineRelease/
 
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
