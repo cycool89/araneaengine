@@ -2,13 +2,13 @@
 /**
  * Használ-e adatbázist.
  */
-define('AE_USE_DB', true);
+define('AE_USE_DB', false);
 
 if ($_SERVER['HTTP_HOST'] == 'localhost') {
   $host = 'localhost';
-  $user = 'root';
-  $pass = 'Janika89!';
-  $name = 'AraneaEngine';
+  $user = '';
+  $pass = '';
+  $name = '';
   $pref = 'pre_'; //nincs kész
 } elseif (strpos($_SERVER['HTTP_HOST'], _DOMAIN) !== false) {
   $host = '';
