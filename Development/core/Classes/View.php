@@ -19,12 +19,11 @@ class View extends Smarty {
     $this->error_reporting = error_reporting();
   }
 
-  public function addTemplate($moduleName, Smarty_Internal_Template $tpl) {
+  public function addTemplate($moduleName, $templateName, Smarty_Internal_Template $tpl) {
     if (!isset($this->templates[$moduleName])) {
-      $this->templates[$moduleName][] = $tpl;
-    } else
-    {
-      $this->templates[$moduleName][] = $tpl;
+      $this->templates[$moduleName][$templateName] = $tpl;
+    } else {
+      $this->templates[$moduleName][$templateName] = $tpl;
     }
   }
 
@@ -34,21 +33,28 @@ class View extends Smarty {
    * @return mixed
    */
   public function getTemplates($moduleName = null) {
-    return (!is_null($moduleName)) ?
-            $this->templates[$moduleName] : $this->templates;
+    $ret = null;
+    if (is_null($moduleName)) {
+      $ret = $this->templates;
+    } else {
+      if (isset($this->templates[$moduleName])) {
+        $ret = $this->templates[$moduleName];
+      }
+    }
+    return $ret;
   }
 
   public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true) {
     $dom_object = file_get_html($this->getTemplateDir(0) . $template);
     $html = $this->_globalizeHTML($dom_object);
-    return parent::createTemplate('string:'.$html, $cache_id, $compile_id, $parent, $do_clone);
+    return parent::createTemplate('string:' . $html, $cache_id, $compile_id, $parent, $do_clone);
   }
 
   private function _globalizeHTML(simple_html_dom $dom) {
-    /*foreach ($dom->find("a") as $e) {
+    /* foreach ($dom->find("a") as $e) {
       $e->href = "xxx";
-    }*/
+      } */
     return $dom->save();
   }
-  
+
 }
