@@ -50,7 +50,7 @@ class Loader {
   public function view($name) {
     $view = AE()->getApplication()->getView();
     $tpl = $view->createTemplate(get_class($this->parent->getModule()) . DS . $name . AE_VIEW_EXT, null, null, $view);
-    $view->addTemplate(get_class($this->parent->getModule()), $tpl);
+    $view->addTemplate(get_class($this->parent->getModule()), $name, $tpl);
   }
 
   public static function isLoaded($className) {
@@ -82,14 +82,14 @@ class Loader {
       $appFile = file_get_contents(AE_CORE_DIR . 'DefaultFiles' . DS . 'DefaultApplication' . AE_EXT);
       $appFile = str_replace("{{appName}}", $appName, $appFile);
       file_force_contents($file, $appFile);
-      
+
       mkdir_r($dir . 'Controllers');
       mkdir_r($dir . 'Models');
       if (!is_dir(AE_TEMPLATES . $appName)) {
         mkdir_r(AE_TEMPLATES . $appName);
         file_force_contents(AE_TEMPLATES . $appName . DS . 'index' . AE_VIEW_EXT, "Hello World!");
       }
-    } elseif(!file_exists($file)) {
+    } elseif (!file_exists($file)) {
       return false; //Nem található alkalmazás
     }
     require_once $file;
