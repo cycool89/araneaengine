@@ -72,8 +72,8 @@ if (function_exists('apache_get_modules')) {
 define('AE_MOD_REWRITE', $mod_rewrite);
 
 if (!is_dir(AE_BASE_DIR . 'Modules')) {
-  recursive_mkdir('Modules', 0775);
+  mkdir_r('Modules', 0775);
 }
 if (!is_dir(AE_BASE_DIR . 'Templates')) {
-  recursive_mkdir('Templates', 0775);
+  mkdir_r('Templates', 0775);
 }
