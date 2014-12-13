@@ -2,49 +2,38 @@
 
 class Request {
 
-  static $GET = NULL;
-  static $POST = NULL;
-  static $FILES = NULL;
-  static $Module = NULL;
-  static $Controller = NULL;
-  static $Method = NULL;
-  static $Params = NULL;
-  static $appReq = false;
+  private static $GET = NULL;
+  private static $POST = NULL;
+  private static $FILES = NULL;
+  private static $Module = NULL;
+  private static $Controller = NULL;
+  private static $Method = NULL;
+  private static $Params = NULL;
+  private static $appReq = false;
   //appReq-t jelző szó
-  static $key_word;
+  private static $key_word;
 
   static function initRequest() {
-    //self::setMVC();
-    self::$key_word = config::$appReqWord;
+    self::$key_word = Config::getEntry('AppReqWord');
     array_walk_recursive($_GET, 'strip_tags');
-    //array_walk_recursive($_POST, 'strip_tags');
     self::$GET = $_GET;
     self::$POST = $_POST;
     self::$FILES = $_FILES;
   }
 
-  static function setMVC($array = array()) {
+  static function setMVC(array $array = array()) {
 
-    self::$Module = null;
-    self::$Controller = null;
-    self::$Method = null;
-    self::$Params = null;
-
-    $def_req = config::getDefaultRequest();
     $url = (empty($array) || !is_array($array)) ? URL::arg() : $array;
 
-    if (config::$MultiLanguage) {
-      if (isset($url[1]) && strpos($url[1], 'Module:') === 0) {
-        $url[1] = str_replace('Module:', '', $url[1]);
-      }
-    } else {
-      if (isset($url[0]) && strpos($url[0], 'Module:') === 0) {
-        $url[0] = str_replace('Module:', '', $url[0]);
-      }
+    $reqStartIndex = 0;
+    if (Config::getEntry('Multilanguage')) {
+      $reqStartIndex = 1;
     }
-
-    $langs = array_keys(config::getLanguages());
-    if (config::$MultiLanguage) {
+    if (isset($url[$reqStartIndex]) && strpos($url[$reqStartIndex], 'Module:') === 0) {
+      $url[$reqStartIndex] = str_replace('Module:', '', $url[$reqStartIndex]);
+    }
+    $langs = array_keys(Config::getEntry('Languages'));
+    if (Config::getEntry('Multilanguage')) {
       if (!Session::get('lang')) {
         if (isset($url[0]) && in_array($url[0], $langs)) {
           Session::set('lang', config::getLanguage($url[0]));
@@ -67,27 +56,22 @@ class Request {
       } elseif (!isset($url[0])) {
         URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . '/');
       }
-    } else {
-      if (Session::get('lang'))
-        Session::del('lang');
+    } elseif (Session::get('lang')) {
+
+      Session::del('lang');
     }
 
     if (isset($url[0]) && $url[0] === self::$key_word) {
       self::$appReq = true;
       array_shift($url);
     }
-    //echo d(Session::get('lang'), $url);
 
+    $def_req['Module'] = Config::getEntry('Module');
+    $def_req['Controller'] = Config::getEntry('Controller');
+    $def_req['Method'] = Config::getEntry('Method');
+    $def_req['Params'] = Config::getEntry('Params');
 
-    /* if (isset($url[0]) && !in_array($url[0], array_keys(config::getLanguages())) && config::$MultiLanguage)
-      {
-      $langs = array_keys(config::getLanguages());
-      URL::redirect($langs[0] . '/' . implode('/', $url));
-      } */
     if (!$url) {
-////////////////////////////////////////////////////////
-// Alapértelmezett Modul/Controller/Method beállítása //
-////////////////////////////////////////////////////////
       self::$Module = $def_req['Module'];
       self::$Controller = $def_req['Controller'];
       self::$Method = $def_req['Method'];
@@ -103,43 +87,35 @@ class Request {
       } else {
         self::$Params = $req['Params'];
       }
-
-      /* self::$Module = (URL::arg(0)) ? $url[0] : $def_req['Module'];
-        self::$Controller = (URL::arg(1)) ? $url[1] : $def_req['Controller'];
-        self::$Method = (URL::arg(2)) ? $url[2] : $def_req['Method'];
-        self::$Params = (URL::arg(3)) ? self::makeParams() : $def_req['Params']; */
     }
-    //echo d(get_class_vars('Request'),URL::arg());
   }
 
   static function getRequestFromArray($url) {
-    $def_req = config::getDefaultRequest();
+    $def_req['Module'] = Config::getEntry('Module');
+    $def_req['Controller'] = Config::getEntry('Controller');
+    $def_req['Method'] = Config::getEntry('Method');
+    $def_req['Params'] = Config::getEntry('Params');
     $m = $c = $me = $p = '';
-    //$which = config::$MultiLanguage ? 1 : 0;
     $which = 0;
-    if (Modules::isModuleExists($url[$which])) {
+    if (Loader::isModuleExists($url[$which])) {
       $m = $url[$which];
       array_shift($url);
     } else {
       $m = $def_req['Module'];
-      //$which++;
     }
 
-    if (isset($url[$which]) && Modules::isControllerExists($m, $url[$which])) {
+    if (isset($url[$which]) && Loader::isControllerExists($m, $url[$which].'_Controller')) {
       $c = $url[$which];
       array_shift($url);
     } else {
       $c = lcfirst($m);
-      //$c = $def_req['Controller'];
-      //$which++;
     }
 
-    if (isset($url[$which]) && Modules::isMethodExists($m, $c, $url[$which])) {
+    if (isset($url[$which]) && Loader::isMethodExists($m, $c, $url[$which])) {
       $me = $url[$which];
       array_shift($url);
     } else {
       $me = $def_req['Method'];
-      //$which++;
     }
 
     $p = self::makeParamsFromArray($url, $which);
@@ -163,11 +139,35 @@ class Request {
     for ($i = $which; $i < count($url); $i++) {
       $Params[] = $url[$i];
     }
-    /* for ($i = $which; $i < count($url); $i += 2)
-      {
-      $Params[$url[$i]] = isset($url[$i + 1]) ? $url[$i + 1] : true;
-      } */
     return $Params;
+  }
+
+  public static function GET() {
+    return self::$GET;
+  }
+
+  public static function POST() {
+    return self::$POST;
+  }
+
+  public static function FILES() {
+    return self::$FILES;
+  }
+
+  public static function Module() {
+    return self::$Module;
+  }
+
+  public static function Controller() {
+    return self::$Controller;
+  }
+
+  public static function Method() {
+    return self::$Method;
+  }
+
+  public static function Params() {
+    return self::$Params;
   }
 
 }

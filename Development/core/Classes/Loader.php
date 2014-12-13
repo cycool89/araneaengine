@@ -23,7 +23,7 @@ class Loader {
   }
 
   public function controller($name) {
-    $bootValue = $this->load($name, 'Controllers');
+    $bootValue = $this->load($name . '_Controller', 'Controllers');
     if ($this->parent->$name instanceof aFormController && Request::$POST && isset(Request::$POST[get_class($this->parent)])) {
       $this->parent->setValues(Request::$POST[get_class($this->parent)]);
       $this->parent->checkValues();
@@ -34,12 +34,12 @@ class Loader {
       AE()->getApplication()->view->assign('values', $this->parent->getValues());
       AE()->getApplication()->view->assign('errors', $this->parent->getErrors());
     }
-    $this->parent->$name = new Proxy(self::$classes[$name]);
+    $this->parent->$name = new Proxy(self::$classes[$name . '_Controller']);
     return $bootValue;
   }
 
   public function model($name) {
-    return $this->load($name, 'Models');
+    return $this->load($name . '_Model', 'Models');
   }
 
   public function module($name) {
@@ -59,6 +59,31 @@ class Loader {
 
   public static function getLoadedClass($className) {
     return (self::isLoaded($className) ? self::$classes[$className] : null);
+  }
+
+  public static function isModuleExists($moduleName) {
+    if (file_exists(Config::getEntry('ModuleDirectory') . $moduleName . DS . $moduleName . AE_EXT)) {
+      require_once Config::getEntry('ModuleDirectory') . $moduleName . DS . $moduleName . AE_EXT;
+      return Config::getEntry('ModuleDirectory') . $moduleName . DS;
+    }
+    return false;
+  }
+
+  public static function isControllerExists($module, $controller) {
+    if (file_exists(self::isModuleExists($module) . 'Controllers' . DS . $controller . AE_EXT)) {
+      require_once self::isModuleExists($module) . 'Controllers' . DS . $controller . AE_EXT;
+      return true;
+    }
+    return false;
+  }
+
+  public static function isMethodExists($module, $controller, $method) {
+    $dir = self::isModuleExists($module);
+    if (self::isControllerExists($module, $controller)) {
+      require_once $dir . 'Controllers' . DS . $controller . AE_EXT;
+      return method_exists($controller, $method);
+    }
+    return false;
   }
 
   public function getIncDir() {
@@ -98,6 +123,12 @@ class Loader {
   }
 
   private function load($name, $path, $absolutePath = false) {
+    $namePieces = explode('_', $name);
+    $shortName = $name;
+    if (count($namePieces) > 1) {
+      $shortName = $namePieces[0];
+    }
+    echo $shortName;
     if (!Loader::isLoaded($name)) {
       if (!$absolutePath) {
         require_once $this->incDir . $path . DS . $name . AE_EXT;
@@ -116,12 +147,12 @@ class Loader {
       $loader = new Loader(self::$classes[$name], $path);
       self::$classes[$name]->setLoader($loader);
 
-      $this->parent->$name = self::$classes[$name];
+      $this->parent->$shortName = & self::$classes[$name];
       self::$classes[$name]->setBootValue(self::$classes[$name]->boot());
     } else {
-      $this->parent->$name = self::$classes[$name];
+      $this->parent->$shortName = & self::$classes[$name];
     }
-    return $this->parent->$name->getBootValue();
+    return $this->parent->$shortName->getBootValue();
   }
 
 }

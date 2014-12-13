@@ -3,7 +3,7 @@ Config::addEntry('Application', 'App');
 Config::addEntry('AppReqWord', 'Aranea');
 
 Config::addEntry('Module', 'Menu');
-Config::addEntry('Controller', 'menuController');
+Config::addEntry('Controller', 'menu');
 Config::addEntry('Method', 'index');
 Config::addEntry('Params', array(
     'index'

@@ -24,7 +24,7 @@ class URL {
 
   static function makeArrayFromURI($string) {
     $URL = trim($string,'/');
-    $URL = explode('/', strip_tags($string));
+    $URL = explode('/', strip_tags($URL));
     array_walk_recursive($URL, 'strip_tags');
     return $URL;
   }
