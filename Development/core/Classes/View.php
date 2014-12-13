@@ -49,7 +49,6 @@ class View extends Smarty {
     $moduleName = explode(DS, $template);
     $moduleName = $moduleName[0];
     $this->incDir = AE_BASE_PATH . basename(AE_TEMPLATES) . DS . $moduleName . DS;
-    echo $this->incDir . '<br>';
     $dom_object = file_get_html($this->getTemplateDir(0) . $template);
     $html = $this->_globalizeHTML($dom_object);
     return parent::createTemplate('string:' . $html, $cache_id, $compile_id, $parent, $do_clone);
