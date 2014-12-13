@@ -24,6 +24,7 @@ class AraneaEngine extends aSingleton {
     require_once AE_BASE_DIR . 'config' . DS . 'dbconfig' . AE_EXT;
     require_once AE_BASE_DIR . 'config' . DS . 'config' . AE_EXT;
     URL::initURL();
+    Request::setMVC();
   }
 
   public function start() {
