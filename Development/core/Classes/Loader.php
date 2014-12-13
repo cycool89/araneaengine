@@ -147,10 +147,10 @@ class Loader {
       $loader = new Loader(self::$classes[$name], $path);
       self::$classes[$name]->setLoader($loader);
 
-      $this->parent->$shortName = & self::$classes[$name];
+      $this->parent->$shortName = self::$classes[$name];
       self::$classes[$name]->setBootValue(self::$classes[$name]->boot());
     } else {
-      $this->parent->$shortName = & self::$classes[$name];
+      $this->parent->$shortName = self::$classes[$name];
     }
     return $this->parent->$shortName->getBootValue();
   }
