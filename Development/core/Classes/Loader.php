@@ -128,7 +128,6 @@ class Loader {
     if (count($namePieces) > 1) {
       $shortName = $namePieces[0];
     }
-    echo $shortName;
     if (!Loader::isLoaded($name)) {
       if (!$absolutePath) {
         require_once $this->incDir . $path . DS . $name . AE_EXT;
