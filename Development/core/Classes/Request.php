@@ -170,6 +170,10 @@ class Request {
     return self::$Params;
   }
 
+  public static function isAppReq() {
+    return self::$appReq;
+  }
+
 }
 
 Request::initRequest();
