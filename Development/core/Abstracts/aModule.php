@@ -17,9 +17,9 @@ abstract class aModule extends aClass {
    * @param array $params
    * @return mixed
    */
-  final public function run($controller, $method, array $params) {
+  final public function run($controller, $method, array $params = array()) {
     $this->load->controller($controller);
-    return call_user_func_array(array($this, $method), $params);
+    return call_user_func_array(array($this->$controller, $method), $params);
   }
 
 }

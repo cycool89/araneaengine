@@ -1078,7 +1078,7 @@ class simple_html_dom
 		$this->remove_noise("'(<\?)(.*?)(\?>)'s", true);
 		// strip smarty scripts
 		$this->remove_noise("'(\{\w)(.*?)(\})'s", true);
-
+        $this->remove_noise("'(<\{(.*?)\}>)'s",true);
 		// parsing
 		while ($this->parse());
 		// end
