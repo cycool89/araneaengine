@@ -414,7 +414,7 @@ class Inflector
 /**
  * @return Inflector
  */
-function &CMXstr()
+function &AEstr()
 {
     if (!Inflector::$instance)
     {
