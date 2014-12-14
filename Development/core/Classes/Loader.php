@@ -24,8 +24,8 @@ class Loader {
 
   public function controller($name) {
     $bootValue = $this->load($name . '_Controller', 'Controllers');
-    if ($this->parent->$name instanceof aFormController && Request::$POST && isset(Request::$POST[get_class($this->parent)])) {
-      $this->parent->setValues(Request::$POST[get_class($this->parent)]);
+    if ($this->parent->$name instanceof aFormController && !is_null(Request::POST(get_class($this->parent)))) {
+      $this->parent->setValues(Request::POST(get_class($this->parent)));
       $this->parent->checkValues();
       $errors = $this->parent->getErrors();
       if (empty($errors)) {

@@ -12,11 +12,11 @@ abstract class aFormController extends aController {
   protected $errors = array();
 
   public function __construct() {
-    parent::__construct();
-    if (isset(Request::$GET['id'])) {
+    //parent::__construct();
+    if (!is_null(Request::GET('id'))) {
       $this->setModify(true);
       AE()->getApplication()->view->assign('modify', true);
-      AE()->getApplication()->view->assign('id', Request::$GET['id']);
+      AE()->getApplication()->view->assign('id', Request::GET('id'));
     }
   }
 

@@ -142,16 +142,43 @@ class Request {
     return $Params;
   }
 
-  public static function GET() {
-    return self::$GET;
+  public static function GET($index = null) {
+    $ret = null;
+    if (!is_null($index))
+    {
+      if (isset(self::$GET[$index])) {
+        $ret = self::$GET[$index];
+      }
+    } else {
+      $ret = self::$GET;
+    }
+    return $ret;
   }
 
-  public static function POST() {
-    return self::$POST;
+  public static function POST($index = null) {
+    $ret = null;
+    if (!is_null($index))
+    {
+      if (isset(self::$POST[$index])) {
+        $ret = self::$POST[$index];
+      }
+    } else {
+      $ret = self::$POST;
+    }
+    return $ret;
   }
 
-  public static function FILES() {
-    return self::$FILES;
+  public static function FILES($index = null) {
+    $ret = null;
+    if (!is_null($index))
+    {
+      if (isset(self::$FILES[$index])) {
+        $ret = self::$FILES[$index];
+      }
+    } else {
+      $ret = self::$FILES;
+    }
+    return $ret;
   }
 
   public static function Module() {
