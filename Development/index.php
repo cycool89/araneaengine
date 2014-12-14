@@ -24,7 +24,7 @@ define('_EMAIL', 'info@araneaengine.hu');
  * 'product'    : error_reporting(E_ALL & ~E_NOTICE)<br>
  * 'final'      : error_reporting(0);<br>
  */
-define('AE_ENVIRONMENT', 'development');
+define('AE_ENVIRONMENT', 'product');
 
 define('DS', DIRECTORY_SEPARATOR);
 define('PS', PATH_SEPARATOR);

@@ -69,7 +69,7 @@ abstract class aModel extends aClass {
   protected function _genShortUrl($itemId, $fromField = 'title', $toField = 'short_url') {
     if (isset($this->fields[$this->prefix . $toField]) && isset($this->fields[$this->prefix . $fromField])) {
       $item = $this->getItem($itemId);
-      $surl = CMXstr()->urlize($item[$this->prefix . $fromField]);
+      $surl = AEstr()->urlize($item[$this->prefix . $fromField]);
       $darab = $this->db->getOne(
               $this->db->execute("SELECT count({$this->id_field}) as db FROM {$this->table} WHERE ({$this->prefix}$toField LIKE '$surl' OR {$this->prefix}$toField LIKE '{$surl}-[0-9]' OR {$this->prefix}$toField LIKE '{$surl}-[0-9][0-9]') AND {$this->id_field} <> {$itemId}")
       );

@@ -28,9 +28,11 @@ class AraneaEngine extends aSingleton {
   }
 
   public function start() {
+    date_default_timezone_set(Config::getEntry('Timezone'));
     $this->loadPlugin('Smarty');
     $this->loadPlugin('SimpleHtmlDom');
     $this->loadPlugin('KintMaster');
+    $this->loadPlugin('Inflector');
     if (AE_USE_DB) {
       $this->getDatabase()->connect(AE_DBHOST, AE_DBUSER, AE_DBPASS, AE_DBNAME);
     }

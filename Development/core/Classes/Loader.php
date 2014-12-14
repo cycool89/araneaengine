@@ -24,15 +24,15 @@ class Loader {
 
   public function controller($name) {
     $bootValue = $this->load($name . '_Controller', 'Controllers');
-    if ($this->parent->$name instanceof aFormController && !is_null(Request::POST(get_class($this->parent)))) {
-      $this->parent->setValues(Request::POST(get_class($this->parent)));
-      $this->parent->checkValues();
-      $errors = $this->parent->getErrors();
+    if ($this->parent->$name instanceof aFormController && !is_null(Request::POST(get_class($this->parent->$name)))) {
+      $this->parent->$name->setValues(Request::POST(get_class($this->parent->$name)));
+      $this->parent->$name->checkValues();
+      $errors = $this->parent->$name->getErrors();
       if (empty($errors)) {
-        $this->parent->storeData();
+        $this->parent->$name->storeData();
       }
-      AE()->getApplication()->view->assign('values', $this->parent->getValues());
-      AE()->getApplication()->view->assign('errors', $this->parent->getErrors());
+      AE()->getApplication()->view->assign('values', $this->parent->$name->getValues());
+      AE()->getApplication()->view->assign('errors', $this->parent->$name->getErrors());
     }
     $this->parent->$name = new Proxy(self::$classes[$name . '_Controller']);
     return $bootValue;

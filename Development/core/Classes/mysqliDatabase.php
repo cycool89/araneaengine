@@ -136,14 +136,13 @@ class mysqliDatabase extends aSingleton implements iDatabase {
     } else {
       $res = $query;
     }
+    $items = array();
     if ($this->_mysql->affected_rows > 0) {
-      $items = array();
       while ($row = $res->fetch_assoc()) {
         $items[] = $row;
       }
-      return $items;
     }
-    return false;
+    return $items;
   }
 
   /**
