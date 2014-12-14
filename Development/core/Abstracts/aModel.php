@@ -15,8 +15,8 @@ abstract class aModel extends aClass {
   protected $id_field = '';
 
   function __construct() {
-    parent::__construct();
-    $this->db = AraneaEngine::getDatabase();
+    //parent::__construct();
+    $this->db = AE()->getDatabase();
     if ($this->table == '' || $this->prefix == '') {
       $c = new ReflectionClass($this);
       echo 'Definiáld a <b>"table" -t, "prefix"-et</b> a modelben:<br>' . $c->getFileName();
