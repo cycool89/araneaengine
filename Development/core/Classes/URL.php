@@ -1,5 +1,5 @@
 <?php
-
+namespace core;
 class URL {
 
   private static $URL = array();

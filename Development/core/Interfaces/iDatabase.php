@@ -1,5 +1,5 @@
 <?php
-
+namespace core;
 /**
  * AraneaEngine adatbázis interface
  * 

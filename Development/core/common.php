@@ -102,7 +102,9 @@ function tobbesszam($string) {
   return $string;
 }
 
-function autoload($class) {
+function autoload($c) {
+  $parts = explode('\\',$c);
+  $class = end($parts);
   $path = '';
   switch ($class[0]) {
     case 'i':
@@ -124,3 +126,10 @@ function autoload($class) {
 }
 
 spl_autoload_register('autoload');
+
+function getClassName($c) {
+  if (is_object($c)) $c = get_class ($c);
+  $parts = explode('\\',$c);
+  $class = end($parts);
+  return $class;
+}

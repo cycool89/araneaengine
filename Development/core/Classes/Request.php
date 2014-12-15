@@ -1,5 +1,7 @@
 <?php
 
+namespace core;
+
 class Request {
 
   private static $GET = NULL;
@@ -104,7 +106,7 @@ class Request {
       $m = $def_req['Module'];
     }
 
-    if (isset($url[$which]) && Loader::isControllerExists($m, $url[$which].'_Controller')) {
+    if (isset($url[$which]) && Loader::isControllerExists($m, $url[$which])) {
       $c = $url[$which];
       array_shift($url);
     } else {
@@ -144,8 +146,7 @@ class Request {
 
   public static function GET($index = null) {
     $ret = null;
-    if (!is_null($index))
-    {
+    if (!is_null($index)) {
       if (isset(self::$GET[$index])) {
         $ret = self::$GET[$index];
       }
@@ -157,8 +158,7 @@ class Request {
 
   public static function POST($index = null) {
     $ret = null;
-    if (!is_null($index))
-    {
+    if (!is_null($index)) {
       if (isset(self::$POST[$index])) {
         $ret = self::$POST[$index];
       }
@@ -170,8 +170,7 @@ class Request {
 
   public static function FILES($index = null) {
     $ret = null;
-    if (!is_null($index))
-    {
+    if (!is_null($index)) {
       if (isset(self::$FILES[$index])) {
         $ret = self::$FILES[$index];
       }

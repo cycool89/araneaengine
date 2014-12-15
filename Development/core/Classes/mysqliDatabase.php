@@ -1,5 +1,5 @@
 <?php
-
+namespace core;
 /**
  * AraneaEngine MySqli osztály
  * 
@@ -19,7 +19,7 @@ class mysqliDatabase extends aSingleton implements iDatabase {
   protected $_paramTypeList;
 
   public function connect($host, $username, $password, $dbname) {
-    $this->_mysql = new mysqli($host, $username, $password) or die('Probléma az adatbázis szerver csatlakozáskor!');
+    $this->_mysql = new \mysqli($host, $username, $password) or die('Probléma az adatbázis szerver csatlakozáskor!');
     if (!$this->_mysql->select_db($dbname)) {
       $this->_mysql->query(sprintf('SET GLOBAL storage_engine = MyISAM;'));
       $this->_mysql->query(sprintf('SET SESSION storage_engine = MyISAM;'));
