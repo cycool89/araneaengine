@@ -1,11 +1,11 @@
 <?php
-
+namespace core;
 /**
  * Description of View
  *
  * @author cycool89
  */
-class View extends Smarty {
+class View extends \Smarty {
 
   private $templates = array();
   private $incDir = '';
@@ -23,7 +23,7 @@ class View extends Smarty {
     $this->error_reporting = error_reporting();
   }
 
-  public function addTemplate($moduleName, $templateName, Smarty_Internal_Template $tpl) {
+  public function addTemplate($moduleName, $templateName, \Smarty_Internal_Template $tpl) {
     if (!isset($this->templates[$moduleName])) {
       $this->templates[$moduleName][$templateName] = $tpl;
     } else {
@@ -57,7 +57,7 @@ class View extends Smarty {
     return parent::createTemplate('string:' . $html, $cache_id, $compile_id, $parent, $do_clone);
   }
 
-  private function _globalizeHTML(simple_html_dom $dom) {
+  private function _globalizeHTML(\simple_html_dom $dom) {
     foreach ($dom->find("a") as $e) {
       $this->checkAnchor($e);
     }

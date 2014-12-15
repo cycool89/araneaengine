@@ -1,4 +1,6 @@
 <?php
+use core\Config;
+
 Config::addEntry('Application', 'App');
 Config::addEntry('AppReqWord', 'Aranea');
 

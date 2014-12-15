@@ -1,5 +1,5 @@
 <?php
-
+namespace core;
 /**
  * Description of Loader
  *
@@ -23,7 +23,7 @@ class Loader {
   }
 
   public function controller($name) {
-    $bootValue = $this->load($name . '_Controller', 'Controllers');
+    $bootValue = $this->load($name/* . '_Controller'*/, 'Controllers');
     if ($this->parent->$name instanceof aFormController && !is_null(Request::POST(get_class($this->parent->$name)))) {
       $this->parent->$name->setValues(Request::POST(get_class($this->parent->$name)));
       $this->parent->$name->checkValues();
@@ -34,12 +34,12 @@ class Loader {
       AE()->getApplication()->view->assign('values', $this->parent->$name->getValues());
       AE()->getApplication()->view->assign('errors', $this->parent->$name->getErrors());
     }
-    $this->parent->$name = new Proxy(self::$classes[$name . '_Controller']);
+    $this->parent->$name = new Proxy(self::$classes[$name/* . '_Controller'*/]);
     return $bootValue;
   }
 
   public function model($name) {
-    return $this->load($name . '_Model', 'Models');
+    return $this->load($name/* . '_Model'*/, 'Models');
   }
 
   public function module($name) {
@@ -49,8 +49,9 @@ class Loader {
 
   public function view($name) {
     $view = AE()->getApplication()->getView();
-    $tpl = $view->createTemplate(get_class($this->parent->getModule()) . DS . $name . AE_VIEW_EXT, null, null, $view);
-    $view->addTemplate(get_class($this->parent->getModule()), $name, $tpl);
+    $module = getClassName($this->parent->getModule());
+    $tpl = $view->createTemplate($module . DS . $name . AE_VIEW_EXT, null, null, $view);
+    $view->addTemplate($module, $name, $tpl);
   }
 
   public static function isLoaded($className) {
@@ -131,11 +132,16 @@ class Loader {
     if (!Loader::isLoaded($name)) {
       if (!$absolutePath) {
         require_once $this->incDir . $path . DS . $name . AE_EXT;
+        $fullName = "$path\\$name";
         $path = $this->incDir;
       } else {
         require_once $path . DS . $name . AE_EXT;
+        $temp = trim($path,DS);
+        $parts = explode(DS,$temp);
+        array_pop($parts);
+        $fullName = end($parts).'\\'.$name;
       }
-      self::$classes[$name] = new $name();
+      self::$classes[$name] = new $fullName();
       //View hozzáadása
       $view = AE()->getApplication()->getView();
       self::$classes[$name]->setView($view);
