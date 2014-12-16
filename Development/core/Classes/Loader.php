@@ -69,26 +69,27 @@ class Loader {
   }
 
   public static function isModuleExists($moduleName) {
+    
     if (file_exists(Config::getEntry('ModuleDirectory') . $moduleName . DS . $moduleName . AE_EXT)) {
-      require_once Config::getEntry('ModuleDirectory') . $moduleName . DS . $moduleName . AE_EXT;
       return Config::getEntry('ModuleDirectory') . $moduleName . DS;
     }
     return false;
   }
 
   public static function isControllerExists($module, $controller) {
-    if (file_exists(self::isModuleExists($module) . 'Controllers' . DS . $controller . AE_EXT)) {
-      require_once self::isModuleExists($module) . 'Controllers' . DS . $controller . AE_EXT;
-      return true;
+    $dir = self::isModuleExists($module);
+    if (file_exists($dir . 'Controllers' . DS . $controller . AE_EXT)) {
+      return $dir . 'Controllers' . DS . $controller . AE_EXT;
     }
     return false;
   }
 
   public static function isMethodExists($module, $controller, $method) {
-    $dir = self::isModuleExists($module);
-    if (self::isControllerExists($module, $controller)) {
-      require_once $dir . 'Controllers' . DS . $controller . AE_EXT;
-      return method_exists($controller, $method);
+    $fullName = "\\Controllers\\".$controller;
+    $dir = self::isControllerExists($module, $controller);
+    if ($dir) {
+      require_once $dir;
+      return method_exists($fullName, $method);
     }
     return false;
   }
