@@ -1,5 +1,7 @@
 <?php
+
 namespace core;
+
 /**
  * Description of Loader
  *
@@ -23,7 +25,7 @@ class Loader {
   }
 
   public function controller($name) {
-    $bootValue = $this->load($name/* . '_Controller'*/, 'Controllers');
+    $bootValue = $this->load($name/* . '_Controller' */, 'Controllers');
     if ($this->parent->$name instanceof aFormController && !is_null(Request::POST(get_class($this->parent->$name)))) {
       $this->parent->$name->setValues(Request::POST(get_class($this->parent->$name)));
       $this->parent->$name->checkValues();
@@ -34,12 +36,16 @@ class Loader {
       AE()->getApplication()->view->assign('values', $this->parent->$name->getValues());
       AE()->getApplication()->view->assign('errors', $this->parent->$name->getErrors());
     }
-    $this->parent->$name = new Proxy(self::$classes[$name/* . '_Controller'*/]);
+    $this->parent->$name = new Proxy(self::$classes[$name/* . '_Controller' */]);
     return $bootValue;
   }
 
   public function model($name) {
-    return $this->load($name/* . '_Model'*/, 'Models');
+    return $this->load($name, 'Models');
+  }
+
+  public function submodule($name) {
+    return $this->load($name, $this->incDir . 'Modules' . DS . $name . DS, true);
   }
 
   public function module($name) {
@@ -119,7 +125,7 @@ class Loader {
       return false; //Nem található alkalmazás
     }
     require_once $file;
-    $fullName= "\\Modules\\".$appName;
+    $fullName = "\\Modules\\" . $appName;
     self::$classes[$appName] = new $fullName();
     return self::$classes[$appName];
   }
@@ -137,10 +143,10 @@ class Loader {
         $path = $this->incDir;
       } else {
         require_once $path . DS . $name . AE_EXT;
-        $temp = trim($path,DS);
-        $parts = explode(DS,$temp);
+        $temp = trim($path, DS);
+        $parts = explode(DS, $temp);
         array_pop($parts);
-        $fullName = end($parts).'\\'.$name;
+        $fullName = end($parts) . '\\' . $name;
       }
       self::$classes[$name] = new $fullName();
       //View hozzáadása
