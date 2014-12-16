@@ -150,15 +150,16 @@ class Loader {
       }
       self::$classes[$name] = new $fullName();
       //View hozzáadása
-      $view = AE()->getApplication()->getView();
-      self::$classes[$name]->setView($view);
-      //Module hozzáadása
-      $module = $this->parent->getModule();
-      self::$classes[$name]->setModule($module);
-      //Loader hozzáadása
-      $loader = new Loader(self::$classes[$name], $path);
-      self::$classes[$name]->setLoader($loader);
-
+      if (!(self::$classes[$name] instanceof \core\aModel)) {
+        $view = AE()->getApplication()->getView();
+        self::$classes[$name]->setView($view);
+        //Module hozzáadása
+        $module = $this->parent->getModule();
+        self::$classes[$name]->setModule($module);
+        //Loader hozzáadása
+        $loader = new Loader(self::$classes[$name], $path);
+        self::$classes[$name]->setLoader($loader);
+      }
       $this->parent->$shortName = self::$classes[$name];
       self::$classes[$name]->setBootValue(self::$classes[$name]->boot());
     } else {
