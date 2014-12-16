@@ -132,11 +132,6 @@ class Loader {
   }
 
   private function load($name, $path, $absolutePath = false) {
-    $namePieces = explode('_', $name);
-    $shortName = $name;
-    if (count($namePieces) > 1) {
-      $shortName = $namePieces[0];
-    }
     if (!Loader::isLoaded($name)) {
       if (!$absolutePath) {
         require_once $this->incDir . $path . DS . $name . AE_EXT;
@@ -161,12 +156,12 @@ class Loader {
         $loader = new Loader(self::$classes[$name], $path);
         self::$classes[$name]->setLoader($loader);
       }
-      $this->parent->$shortName = self::$classes[$name];
+      $this->parent->$name = self::$classes[$name];
       self::$classes[$name]->setBootValue(self::$classes[$name]->boot());
     } else {
-      $this->parent->$shortName = self::$classes[$name];
+      $this->parent->$name = self::$classes[$name];
     }
-    return $this->parent->$shortName->getBootValue();
+    return $this->parent->$name->getBootValue();
   }
 
 }

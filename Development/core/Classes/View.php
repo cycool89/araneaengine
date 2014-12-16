@@ -1,5 +1,7 @@
 <?php
+
 namespace core;
+
 /**
  * Description of View
  *
@@ -58,6 +60,9 @@ class View extends \Smarty {
   }
 
   private function _globalizeHTML(\simple_html_dom $dom) {
+    foreach ($dom->find("form") as $e) {
+      $this->checkForm($e);
+    }
     foreach ($dom->find("a") as $e) {
       $this->checkAnchor($e);
     }
@@ -73,17 +78,17 @@ class View extends \Smarty {
     return $dom->save();
   }
 
-  private function checkAnchor($e) {
-    $this->remove_noise("'(<\{(.*?)\}>)'s",$e,'href');
-    
-    $href = (isset($e->href)) ? trim($e->href, '/') : '';
+  private function checkAnchor($e, $attr = 'href') {
+    $this->remove_noise("'(<\{(.*?)\}>)'s", $e, $attr);
+
+    $href = (isset($e->$attr)) ? trim($e->$attr, '/') : '';
     $hrefPieces = explode('/', $href);
     $hrefPieces = ($hrefPieces[0] == '') ? array() : $hrefPieces;
     if (strpos($href, ':') !== false) {
       //Ha van benn ':' ne csinálj semmit. 'http:' 'Module:'
-      $e->href = $href;
+      $e->$attr = $href;
     } elseif (strpos($href, '.') !== false) {
-      $e->href = $this->incDir . $href;
+      $e->$attr = $this->incDir . $href;
     } else {
       //Ha nincs benn ':'
       //Appreq van-e és van-e benn
@@ -91,17 +96,30 @@ class View extends \Smarty {
         array_unshift($hrefPieces, Config::getEntry('AppReqWord'));
       }
       //Multilanguage van-e és van-e benn
-      if (Config::getEntry('Multilanguage') && array_search(Session::get('lang', 'code'), $hrefPieces) === false) {
-        array_unshift($hrefPieces, Session::get('lang', 'code'));
+      if (Config::getEntry('Multilanguage')) {
+        $foundLanguage = false;
+        $i = 0;
+        while ($i < count($hrefPieces) && $foundLanguage === false) {
+          $foundLanguage = Config::isLanguage($hrefPieces[$i]);
+          $i++;
+        }
+        if ($foundLanguage === false) {
+          $hrefPieces = array_merge(array(Session::get('lang', 'code')), $hrefPieces);
+        } else {
+          $temp = $hrefPieces[$i - 1];
+          unset($hrefPieces[$i - 1]); //Közbülső helyről eltűntet
+          $hrefPieces = array_values($hrefPieces); //Tömb újraszámozása
+          $hrefPieces = array_merge(array($temp), $hrefPieces); //Tömb eléfűzése
+        }
       }
       $modrewrite = (AE_MOD_REWRITE) ? '' : 'index.php/';
-      $e->href = AE_BASE_PATH . $modrewrite . implode('/', $hrefPieces);
-      if ($e->href[strlen($e->href) - 1] !== '/') {
-        $e->href .= '/';
+      $e->$attr = AE_BASE_PATH . $modrewrite . implode('/', $hrefPieces);
+      if ($e->$attr[strlen($e->$attr) - 1] !== '/') {
+        $e->$attr .= '/';
       }
     }
-    
-    $e->href = $this->restore_noise($e->href);
+
+    $e->$attr = $this->restore_noise($e->$attr);
   }
 
   private function checkImage($e) {
@@ -109,7 +127,7 @@ class View extends \Smarty {
   }
 
   private function checkLink($e) {
-    $this->remove_noise("'(<\{(.*?)\}>)'s",$e,'href');
+    $this->remove_noise("'(<\{(.*?)\}>)'s", $e, 'href');
     $e->href = $this->incDir . trim($e->href, '/');
     $e->href = $this->restore_noise($e->href);
   }
@@ -118,12 +136,12 @@ class View extends \Smarty {
     $e->src = $this->incDir . trim($e->src, '/');
   }
 
-  protected function remove_noise($pattern, $e , $attr, $remove_tag = false) {
+  protected function remove_noise($pattern, $e, $attr, $remove_tag = false) {
     $this->noise = array();
     $count = preg_match_all($pattern, $e->$attr, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
     for ($i = $count - 1; $i > -1; --$i) {
       $key = '___noise___' . sprintf('% 5d', count($this->noise) + 100);
-      
+
       $idx = ($remove_tag) ? 0 : 1;
       $this->noise[$key] = $matches[$i][$idx][0];
       $e->$attr = substr_replace($e->$attr, $key, $matches[$i][$idx][1], strlen($matches[$i][$idx][0]));
@@ -163,6 +181,12 @@ class View extends \Smarty {
         return $noiseElement;
       }
     }
+  }
+
+  public function checkForm($e) {
+    //$this->remove_noise("'(<\{(.*?)\}>)'s",$e,'action');
+    $this->checkAnchor($e, 'action');
+    //$e->action = $this->restore_noise($e->action);
   }
 
 }

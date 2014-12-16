@@ -7,7 +7,7 @@ namespace core;
  */
 class AraneaEngine extends aSingleton {
 
-  const VERSION = "0.0.0";
+  const VERSION = "0.1.0";
   private $startTime = 0;
 
   private $plugins = array(

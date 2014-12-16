@@ -135,16 +135,16 @@ function getClassName($c) {
   return $class;
 }
 
-function get_memory_usage() {
+function getMemoryUsage() {
   $mem_usage = memory_get_usage(true);
 
   $ret = '';
   if ($mem_usage < 1024) {
-    $ret .= $mem_usage . " bytes";
+    $ret .= $mem_usage . " b";
   } elseif ($mem_usage < 1048576) {
-    $ret .= round($mem_usage / 1024, 2) . " kilobytes";
+    $ret .= round($mem_usage / 1024, 2) . " Kb";
   } else {
-    $ret .= round($mem_usage / 1048576, 2) . " megabytes";
+    $ret .= round($mem_usage / 1048576, 2) . " Mb";
   }
   return $ret;
 }

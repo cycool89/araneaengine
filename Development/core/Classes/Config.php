@@ -23,9 +23,15 @@ class Config implements iConfig {
     return array('code' => $langs[0], 'name' => self::$entries['Languages'][$langs[0]]);
   }
   
-  static function getLanguage($code)
+  public static function getLanguage($code)
   {
     return array('code' => $code, 'name' => self::$entries['Languages'][$code]);
+  }
+  
+  public static function isLanguage($code) {
+    $langs = array_keys(self::$entries['Languages']);
+    $ret = array_search($code, $langs);
+    return $ret;
   }
 
 }
