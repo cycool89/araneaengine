@@ -103,7 +103,7 @@ function tobbesszam($string) {
 }
 
 function autoload($c) {
-  $parts = explode('\\',$c);
+  $parts = explode('\\', $c);
   $class = end($parts);
   $path = '';
   switch ($class[0]) {
@@ -128,8 +128,23 @@ function autoload($c) {
 spl_autoload_register('autoload');
 
 function getClassName($c) {
-  if (is_object($c)) $c = get_class ($c);
-  $parts = explode('\\',$c);
+  if (is_object($c))
+    $c = get_class($c);
+  $parts = explode('\\', $c);
   $class = end($parts);
   return $class;
+}
+
+function get_memory_usage() {
+  $mem_usage = memory_get_usage(true);
+
+  $ret = '';
+  if ($mem_usage < 1024) {
+    $ret .= $mem_usage . " bytes";
+  } elseif ($mem_usage < 1048576) {
+    $ret .= round($mem_usage / 1024, 2) . " kilobytes";
+  } else {
+    $ret .= round($mem_usage / 1048576, 2) . " megabytes";
+  }
+  return $ret;
 }
