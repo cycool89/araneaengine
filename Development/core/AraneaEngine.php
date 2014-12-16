@@ -8,6 +8,7 @@ namespace core;
 class AraneaEngine extends aSingleton {
 
   const VERSION = "0.0.0";
+  private $startTime = 0;
 
   private $plugins = array(
       'Smarty' => 'Smarty.class.php',
@@ -21,6 +22,7 @@ class AraneaEngine extends aSingleton {
   private $application = null;
 
   public function __construct() {
+    $this->startTime = microtime(true);
     require_once AE_BASE_DIR . 'config' . DS . 'dbconfig' . AE_EXT;
     require_once AE_BASE_DIR . 'config' . DS . 'config' . AE_EXT;
     URL::initURL();
@@ -42,6 +44,7 @@ class AraneaEngine extends aSingleton {
     $this->application->setModule($this->application);
     $loader = new Loader($this->application, AE_BASE_DIR . Config::getEntry('Application') . DS);
     $this->application->setLoader($loader);
+    $this->application->setBootValue($this->application->boot());
     $this->application->index();
 
     $this->application->render();
@@ -70,6 +73,13 @@ class AraneaEngine extends aSingleton {
 
   public function loadPlugin($plugin) {
     require_once AE_CORE_DIR . 'Plugins' . DS . $plugin . DS . $this->plugins[$plugin];
+  }
+  
+  public function elapsedTime() {
+    $endTime = microtime(true);
+    $eT = $endTime - $this->startTime;
+    
+    return round($eT,4);
   }
 
 }
