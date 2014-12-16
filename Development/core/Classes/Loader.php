@@ -119,7 +119,8 @@ class Loader {
       return false; //Nem található alkalmazás
     }
     require_once $file;
-    self::$classes[$appName] = new $appName();
+    $fullName= "\\Modules\\".$appName;
+    self::$classes[$appName] = new $fullName();
     return self::$classes[$appName];
   }
 
