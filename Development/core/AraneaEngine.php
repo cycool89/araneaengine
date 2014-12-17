@@ -40,6 +40,7 @@ class AraneaEngine extends aSingleton {
     }
     $this->application = Loader::loadApplication(Config::getEntry('Application'), true);
     $view = new View();
+    $view->assign('AE_VERSION',  self::VERSION);
     $this->application->setView($view);
     $this->application->setModule($this->application);
     $loader = new Loader($this->application, AE_BASE_DIR . Config::getEntry('Application') . DS);

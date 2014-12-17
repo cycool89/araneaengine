@@ -135,8 +135,8 @@ function getClassName($c) {
   return $class;
 }
 
-function getMemoryUsage() {
-  $mem_usage = memory_get_usage(true);
+function getMemoryUsage($real_usage = false) {
+  $mem_usage = memory_get_usage($real_usage);
 
   $ret = '';
   if ($mem_usage < 1024) {
