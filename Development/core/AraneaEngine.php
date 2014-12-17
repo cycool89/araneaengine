@@ -15,7 +15,8 @@ class AraneaEngine extends aSingleton {
       'SimpleHtmlDom' => 'simple_html_dom.php',
       'KintMaster' => 'Kint.class.php',
       'Inflector' => 'Inflector.php',
-      'PHPMailer' => 'class.phpmailer.php'
+      'PHPMailer' => 'class.phpmailer.php',
+      'WideImage' => 'WideImage.php'
   );
 
   /** @var aModule */
