@@ -195,18 +195,6 @@ class mysqliDatabase extends aSingleton implements iDatabase {
   }
 
   /**
-   * <var>$string</var> Átalakítása sql stringgé
-   * 
-   * @param string $string
-   * @return string
-   */
-  function qstr($string) {
-    $res = htmlspecialchars($string);
-    $res = strip_tags($res);
-    return '"' . $res . '"';
-  }
-
-  /**
    * Előkészítő fv, amivel a későbbi lekéréshez lehet beállítani limitet.
    * 
    * @param integer $offset

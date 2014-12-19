@@ -83,14 +83,6 @@ interface iDatabase {
   function getKeyedArray($query, $key);
 
   /**
-   * <var>$string</var> Átalakítása sql stringgé
-   * 
-   * @param string $string
-   * @return string
-   */
-  function qstr($string);
-
-  /**
    * Előkészítő fv, amivel a későbbi lekéréshez lehet beállítani limitet.
    * 
    * @param integer $offset

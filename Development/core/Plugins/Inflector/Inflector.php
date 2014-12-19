@@ -407,6 +407,22 @@ class Inflector
         
         return $string;
     }
+    
+    /**
+     * Converts <var>$string</var> <var>"$string"</var>.
+     *
+     * @access public
+     * @static
+     * @param    string    $string    String to get its querystring value
+     * @return string "safer" representation of given string.
+     */
+    
+    public function qstr($string)
+    {
+      $res = htmlspecialchars($string);
+      $res = strip_tags($res);
+      return '"' . $res . '"';
+    }
 
     // }}}
 }
