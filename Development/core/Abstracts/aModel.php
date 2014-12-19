@@ -100,11 +100,9 @@ abstract class aModel extends aClass {
 
   final public function repairShortUrl() {
     $items = $this->getItems();
-    echo d($items);
     foreach ($items as $i => $item) {
       $this->_genShortUrl($item[$this->id_field]);
     }
-    echo d($items);
   }
 
   /**
