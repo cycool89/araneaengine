@@ -238,7 +238,7 @@ class mysqliDatabase extends aSingleton implements iDatabase {
    * @return boolean
    */
   function addColumn($table, $field, $props, $comment = "") {
-    $sql = sprintf('ALTER TABLE %s ADD COLUMN %s %s NOT NULL COMMENT %s', $table, $field, $props, $comment);
+    $sql = sprintf('ALTER TABLE %s ADD COLUMN %s %s NOT NULL COMMENT "%s"', $table, $field, $props, $comment);
     return $this->execute($sql);
   }
 
