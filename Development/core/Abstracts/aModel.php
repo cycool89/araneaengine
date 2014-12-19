@@ -10,6 +10,7 @@ namespace core;
 abstract class aModel extends aClass {
 
   /** @var iDatabase */
+  protected $pairedValues = array();
   protected $db = null;
   protected $table = '';
   protected $prefix = '';
@@ -20,7 +21,7 @@ abstract class aModel extends aClass {
     //parent::__construct();
     $this->db = AE()->getDatabase();
     if ($this->table == '' || $this->prefix == '') {
-      $c = new ReflectionClass($this);
+      $c = new \ReflectionClass($this);
       echo 'Definiáld a <b>"table" -t, "prefix"-et</b> a modelben:<br>' . $c->getFileName();
       exit();
     }
@@ -160,13 +161,8 @@ abstract class aModel extends aClass {
    */
   final function addItem() {
     $Datas = array();
-    foreach ($this->fields as $key => $value) {
-      if (array_key_exists('Value', $value)) {
-        $Datas[$key] = $value['Value'];
-        unset($this->fields[$key]['Value']);
-      }
-    }
-    $id = $this->db->insert($this->table, $Datas);
+    $id = $this->db->insert($this->table, $this->pairedValues);
+    $this->pairedValues = array();
     if ($id !== false) {
       $this->_genShortUrl($id);
     }
@@ -180,14 +176,9 @@ abstract class aModel extends aClass {
    */
   final function updateItem($id) {
     $Datas = array();
-    foreach ($this->fields as $key => $value) {
-      if (array_key_exists('Value', $value)) {
-        $Datas[$key] = $value['Value'];
-        unset($this->fields[$key]['Value']);
-      }
-    }
     $this->db->addWhere($this->id_field, $id);
-    $success = $this->db->update($this->table, $Datas);
+    $success = $this->db->update($this->table, $this->pairedValues);
+    $this->pairedValues = array();
     if ($success !== false) {
       $this->_genShortUrl($id);
     }
@@ -211,12 +202,14 @@ abstract class aModel extends aClass {
    */
   final public function pair($field, $value, $addPrefix = true) {
     $f = ($addPrefix) ? $this->prefix . $field : $field;
-    if (!array_key_exists($f, $this->fields)) {
+    $fields = array_keys($this->fields);
+    if (!in_array($f, $fields)) {
       $this->_getFields();
+      $fields = array_keys($this->fields);
     }
-    if (array_key_exists($f, $this->fields)) {
+    if (in_array($f, $fields)) {
       $value = $this->_correctize($f, $value);
-      $this->fields[$f]['Value'] = $value;
+      $this->pairedValues[$f] = $value;
       return true;
     }
     return false;
@@ -236,10 +229,17 @@ abstract class aModel extends aClass {
    */
   final public function pairAll(array $values) {
     $errors = array();
+    $fields = array_keys($this->_getFields());
     foreach ($values as $field => $value) {
-      if ($this->pair($field, $value) === false) {
-        $errors[] = $field;
+      $f = $field;
+      if (!in_array($f, $fields)) {
+        $f = $this->prefix . $field;
+        if (!in_array($f, $fields)) {
+          $errors[] = $field;
+          continue;
+        }
       }
+      $this->pair($f, $value, false);
     }
     return $errors;
   }
