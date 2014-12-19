@@ -1,5 +1,7 @@
 <?php
+
 namespace core;
+
 /**
  * Description of aModel
  *
@@ -32,6 +34,17 @@ abstract class aModel extends aClass {
 
   abstract protected function install();
 
+  public function getFields() {
+    $ret = new \stdClass;
+    foreach ($this->fields as $key => $value) {
+      $ret->$key = new \stdClass();
+      $ret->$key->name = $value['Field'];
+      $ret->$key->type = $value['Type'];
+      $ret->$key->comment = $value['Comment'];
+    }
+    return $ret;
+  }
+
   /**
    * Lekérdezi a táblában levő mezőket és tárolja a tulajdonságaikat a $this->fields változóban
    * Lekérdezi a táblában levő id mezőt és tárolja a tulajdonságait a $this->id_field változóban
@@ -51,6 +64,7 @@ abstract class aModel extends aClass {
         $this->_getFields(true);
       }
     }
+    return $this->fields;
   }
 
   /**
@@ -195,18 +209,61 @@ abstract class aModel extends aClass {
    * @param bool
    * @return bool
    */
-  final function pair($field, $value, $addPrefix = true) {
+  final public function pair($field, $value, $addPrefix = true) {
     $f = ($addPrefix) ? $this->prefix . $field : $field;
     if (!array_key_exists($f, $this->fields)) {
       $this->_getFields();
-      if (array_key_exists($f, $this->fields)) {
-        return $this->pair($field, $value, $addPrefix);
-      }
-    } else {
+    }
+    if (array_key_exists($f, $this->fields)) {
+      $value = $this->_correctize($f, $value);
       $this->fields[$f]['Value'] = $value;
       return true;
     }
     return false;
+  }
+
+  /**
+   * Előkészítő fv.
+   * Összepárosítja a <var>$values</var> tömbben található mező neveket (kulcs)
+   * az értékekkel, ha tudja.
+   * 
+   * Táblában NEM létező mezőhöz nem párosít adatot!
+   * 
+   * Visszaadja a hibás mezőneveket. (Siker esetén üres tömböt.)
+   * 
+   * @param array $values Asszociatív tömb. mezőnév=>érték formátumban
+   * @return mixed
+   */
+  final public function pairAll(array $values) {
+    $errors = array();
+    foreach ($values as $field => $value) {
+      if ($this->pair($field, $value) === false) {
+        $errors[] = $field;
+      }
+    }
+    return $errors;
+  }
+
+  private function _correctize($field, $value) {
+    $ftype = $this->fields[$field]['Type'];
+    $v = $value;
+    switch (true) {
+      case (strpos($ftype, 'int') !== false):
+      case (strpos($ftype, 'decimal') !== false):
+        $v = intval($v);
+        break;
+      case (strpos($ftype, 'float') !== false):
+      case (strpos($ftype, 'double') !== false):
+      case (strpos($ftype, 'real') !== false):
+        $v = floatval($v);
+        break;
+      case (strpos($ftype, 'char') !== false):
+      case (strpos($ftype, 'text') !== false):
+      case (strpos($ftype, 'blob') !== false):
+        $v = AEstr()->qstr($v);
+        break;
+    }
+    return $v;
   }
 
 }
