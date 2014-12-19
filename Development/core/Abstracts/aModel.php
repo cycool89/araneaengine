@@ -35,7 +35,7 @@ abstract class aModel extends aClass {
 
   abstract protected function install();
 
-  public function getFields() {
+  final public function getFields() {
     $ret = new \stdClass;
     foreach ($this->fields as $key => $value) {
       $ret->$key = new \stdClass();
@@ -92,7 +92,7 @@ abstract class aModel extends aClass {
       if ($darab > 0) {
         $surl .= '-' . $itemId;
       }
-      $this->pair($toField, $this->db->qstr($surl));
+      $this->pair($toField, $surl);
       $this->updateItem($itemId);
       return $surl;
     }
@@ -223,7 +223,7 @@ abstract class aModel extends aClass {
    * Visszaadja a hibás mezőneveket. (Siker esetén üres tömböt.)
    * 
    * @param array $values Asszociatív tömb. mezőnév=>érték formátumban
-   * @return mixed
+   * @return array
    */
   final public function pairAll(array $values) {
     $errors = array();

@@ -113,9 +113,10 @@ interface iDatabase {
    * @param string $table
    * @param string $field
    * @param string $props
+   * @param string $comment Comment a mezőhöz
    * @return boolean
    */
-  function addColumn($table, $field, $props);
+  function addColumn($table, $field, $props, $comment = "");
 
   /**
    * Oszlop (<var>$field</var>) törlése <var>$table</var> táblából
