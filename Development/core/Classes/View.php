@@ -25,7 +25,7 @@ class View extends \Smarty {
     $this->error_reporting = error_reporting();
   }
 
-  public function addTemplate($moduleName, $templateName, \Smarty_Internal_Template $tpl) {
+  public function addTemplate($moduleName, $templateName, \Smarty_Internal_Template &$tpl) {
     if (!isset($this->templates[$moduleName])) {
       $this->templates[$moduleName][$templateName] = $tpl;
     } else {

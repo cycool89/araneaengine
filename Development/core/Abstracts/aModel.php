@@ -22,8 +22,8 @@ abstract class aModel extends aClass {
     $this->db = AE()->getDatabase();
     if ($this->table == '' || $this->prefix == '') {
       $c = new \ReflectionClass($this);
-      echo 'Definiáld a <b>"table" -t, "prefix"-et</b> a modelben:<br>' . $c->getFileName();
-      exit();
+      $file = AE_BASE_PATH . str_replace(AE_BASE_DIR,'',$c->getFileName());
+      Log::write("Nincs definiálva \$table vagy \$prefix a modelben!\n\t\t\t".$file,true, true);
     }
     $sql = sprintf('CREATE TABLE IF NOT EXISTS %s ('
             . '%sid INT(11) AUTO_INCREMENT PRIMARY KEY NOT NULL) '
@@ -112,7 +112,7 @@ abstract class aModel extends aClass {
    * @param mixed $array
    * @return bool
    */
-  final function delItems($array) {
+  final function delItems(array $array) {
     for ($i = 0; $i < count($array); $i++) {
       $this->db->addWhere($this->id_field, $array[$i]);
       if (!$this->db->delete($this->table)) {
@@ -158,11 +158,12 @@ abstract class aModel extends aClass {
    * @return bool
    */
   final function addItem() {
-    $Datas = array();
     $id = $this->db->insert($this->table, $this->pairedValues);
     $this->pairedValues = array();
     if ($id !== false) {
       $this->_genShortUrl($id);
+    } else {
+      Log::write("addItem() sikertelen.",true,false,1);
     }
     return $id;
   }
@@ -173,12 +174,13 @@ abstract class aModel extends aClass {
    * @return bool
    */
   final function updateItem($id) {
-    $Datas = array();
     $this->db->addWhere($this->id_field, $id);
     $success = $this->db->update($this->table, $this->pairedValues);
     $this->pairedValues = array();
     if ($success !== false) {
       $this->_genShortUrl($id);
+    } else {
+      Log::write("updateItem() sikertelen.",true,false,1);
     }
     return $success;
   }

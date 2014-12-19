@@ -70,9 +70,7 @@ class mysqliDatabase extends aSingleton implements iDatabase {
     $this->_query = $query;
     $this->_buildQuery();
     $q = $this->_query;
-    //echo 'qqqq:'.$q;
     $this->_reset();
-    //echo $q;
     return $this->_mysql->query($q);
   }
 
@@ -326,7 +324,7 @@ class mysqliDatabase extends aSingleton implements iDatabase {
         $this->_data = $insertData;
       }
     } else {
-      echo 'Nincs insertData';
+      Log::write("Nincs insertData",true,false,0);
       return false;
     }
 
@@ -370,6 +368,7 @@ class mysqliDatabase extends aSingleton implements iDatabase {
 
       $this->query($query);
     } else {
+      Log::write("Nincs tableData",true,false,0);
       return false;
     }
 
@@ -394,6 +393,7 @@ class mysqliDatabase extends aSingleton implements iDatabase {
       //$q = $this->_buildQuery();
       $this->query($query);
     } else {
+      Log::write("Nincs feltétel a törléshez.",true,false,0);
       return false;
     }
 

@@ -135,12 +135,14 @@ class Loader {
    * $t[Modulenév][$name];
    * 
    * @param string $name
+   * @return \Smarty_Internal_Template
    */
-  public function view($name) {
+  public function &view($name) {
     $view = AE()->getApplication()->getView();
     $module = getClassName($this->parent->getModule());
     $tpl = $view->createTemplate($module . DS . $name . AE_VIEW_EXT, null, null, $view);
     $view->addTemplate($module, $name, $tpl);
+    return $tpl;
   }
 
   /**
