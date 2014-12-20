@@ -1,7 +1,7 @@
 <?php
-namespace Modules;
+namespace application;
 
-class {{appName}} extends \core\aModule implements \core\iApplication {
+class {{appName}} extends \aecore\AModule implements \aecore\IApplication {
 
   public function boot() {
     
