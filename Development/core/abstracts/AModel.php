@@ -1,13 +1,13 @@
 <?php
 
-namespace core;
+namespace aecore;
 
 /**
  * Description of aModel
  *
  * @author cycool89
  */
-abstract class aModel extends aClass {
+abstract class AModel extends AClass {
 
   /** @var iDatabase */
   protected $pairedValues = array();

@@ -1,11 +1,11 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * Description of AraneaEngine
  * 
  * @author cycool89
  */
-class AraneaEngine extends aSingleton {
+class AraneaEngine extends ASingleton {
 
   const VERSION = "0.1.0";
   private $startTime = 0;
@@ -22,7 +22,7 @@ class AraneaEngine extends aSingleton {
   /** @var aModule */
   private $application = null;
 
-  public function __construct() {
+  protected function __construct() {
     $this->startTime = microtime(true);
     require_once AE_BASE_DIR . 'config' . DS . 'dbconfig' . AE_EXT;
     require_once AE_BASE_DIR . 'config' . DS . 'config' . AE_EXT;
@@ -58,7 +58,7 @@ class AraneaEngine extends aSingleton {
     if (AE_USE_DB) {
       switch (Config::getEntry('DatabaseEngine')) {
         case 'mysqli':
-          $ret = mysqliDatabase::getInstance();
+          $ret = MysqliDatabase::getInstance();
           break;
       }
     }

@@ -1,11 +1,11 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * Description of aFormController
  *
  * @author cycool89
  */
-abstract class aFormController extends aController {
+abstract class AFormController extends AController {
 
   protected $modify = false;
   protected $values = array();

@@ -1,10 +1,10 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * Description of aController
  *
  * @author cycool89
  */
-abstract class aController extends aClass {
+abstract class AController extends AClass {
   
 }

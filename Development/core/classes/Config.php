@@ -1,11 +1,11 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * Description of Config
  *
  * @author cycool89
  */
-class Config implements iConfig {
+class Config implements IConfig {
 
   private static $entries = array();
 

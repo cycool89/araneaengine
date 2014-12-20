@@ -1,6 +1,6 @@
 <?php
 
-namespace core;
+namespace aecore;
 
 /**
  * Description of Loader
@@ -59,7 +59,7 @@ class Loader {
    * @return mixed A <var>$name</var> objektum boot() metódusának visszatérési értéke
    */
   public function controller($name) {
-    $bootValue = $this->load($name/* . '_Controller' */, 'Controllers');
+    $fullName = $this->load($name, 'Controllers');
     if ($this->parent->$name instanceof aFormController && !is_null(Request::POST(get_class($this->parent->$name)))) {
       $this->parent->$name->setValues(Request::POST(get_class($this->parent->$name)));
       $this->parent->$name->checkValues();
@@ -70,8 +70,8 @@ class Loader {
       AE()->getApplication()->view->assign('values', $this->parent->$name->getValues());
       AE()->getApplication()->view->assign('errors', $this->parent->$name->getErrors());
     }
-    $this->parent->$name = new Proxy(self::$classes[$name/* . '_Controller' */]);
-    return $bootValue;
+    $this->parent->$name = new Proxy(self::$classes[$fullName]);
+    return $this->parent->$name->getBootValue();
   }
 
   /**
@@ -87,7 +87,8 @@ class Loader {
    * @return mixed A <var>$name</var> objektum boot() metódusának visszatérési értéke
    */
   public function model($name) {
-    return $this->load($name, 'Models');
+    $fullName = $this->load($name, 'Models');
+    return $this->parent->$name->getBootValue();
   }
 
   /**
@@ -103,7 +104,8 @@ class Loader {
    * @return mixed A <var>$name</var> objektum boot() metódusának visszatérési értéke
    */
   public function submodule($name) {
-    return $this->load($name, $this->incDir . 'Modules' . DS . $name . DS, true);
+    $fullName = $this->load($name, 'Submodules' . DS . $name, false);
+    return $this->parent->$name->getBootValue();
   }
 
   /**
@@ -120,7 +122,8 @@ class Loader {
    */
   public function module($name) {
     $path = Config::getEntry('ModuleDirectory') . $name . DS;
-    return $this->load($name, $path, true);
+    $fullName = $this->load($name, $path, true);
+    return $this->parent->$name->getBootValue();
   }
 
   /**
@@ -205,7 +208,8 @@ class Loader {
    * @return boolean
    */
   public static function isMethodExists($module, $controller, $method) {
-    $fullName = "\\Controllers\\" . $controller;
+    $namespace = "\\application\\" . strtolower($module) . "\\controllers\\";
+    $fullName = $namespace . $controller;
     $dir = self::isControllerExists($module, $controller);
     if ($dir) {
       require_once $dir;
@@ -246,42 +250,43 @@ class Loader {
       return false; //Nem található alkalmazás
     }
     require_once $file;
-    $fullName = "\\Modules\\" . $appName;
+    $fullName = "\\application\\" . $appName;
     self::$classes[$appName] = new $fullName();
     return self::$classes[$appName];
   }
 
   private function load($name, $path, $absolutePath = false) {
-    if (!Loader::isLoaded($name)) {
-      if (!$absolutePath) {
-        require_once $this->incDir . $path . DS . $name . AE_EXT;
-        $fullName = "$path\\$name";
-        $path = $this->incDir;
-      } else {
-        require_once $path . DS . $name . AE_EXT;
-        $temp = trim($path, DS);
-        $parts = explode(DS, $temp);
-        array_pop($parts);
-        $fullName = end($parts) . '\\' . $name;
-      }
-      self::$classes[$name] = new $fullName();
-      if (!(self::$classes[$name] instanceof \core\aModel)) {
+    $fullName = '';
+    if (!$absolutePath) {
+      $rModule = new \ReflectionClass($this->parent->getModule());
+      $namespace = "\\" . $rModule->getNamespaceName() . "\\" . strtolower(str_replace(DS,"\\",$path)) . "\\";
+      $fullName = $namespace . $name;
+      require_once $this->incDir . $path . DS . $name . AE_EXT;
+    } else {
+      $path = trim($path, DS);
+      require_once DS . $path . DS . $name . AE_EXT;
+      $namespace = "\\application\\" . strtolower($name) . '\\';
+      $fullName = $namespace . $name;
+    }
+    if (!Loader::isLoaded($fullName)) {
+      self::$classes[$fullName] = new $fullName();
+      if (!(self::$classes[$fullName] instanceof \aecore\aModel)) {
         //View hozzáadása
         $view = AE()->getApplication()->getView();
-        self::$classes[$name]->setView($view);
+        self::$classes[$fullName]->setView($view);
         //Module hozzáadása
         $module = $this->parent->getModule();
-        self::$classes[$name]->setModule($module);
+        self::$classes[$fullName]->setModule($module);
         //Loader hozzáadása
-        $loader = new Loader(self::$classes[$name], $path);
-        self::$classes[$name]->setLoader($loader);
+        $loader = new Loader(self::$classes[$fullName], DS . $path . DS);
+        self::$classes[$fullName]->setLoader($loader);
       }
-      $this->parent->$name = self::$classes[$name];
-      self::$classes[$name]->setBootValue(self::$classes[$name]->boot());
-    } else {
-      $this->parent->$name = self::$classes[$name];
+      self::$classes[$fullName]->setBootValue(self::$classes[$fullName]->boot());
     }
-    return $this->parent->$name->getBootValue();
+
+    $this->parent->$name = self::$classes[$fullName];
+
+    return $fullName;
   }
 
 }

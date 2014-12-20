@@ -1,10 +1,10 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  *
  * @author cycool89
  */
-interface iApplication {
+interface IApplication {
 
   function index();
 

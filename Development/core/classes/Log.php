@@ -1,6 +1,6 @@
 <?php
 
-namespace core;
+namespace aecore;
 
 /**
  * Description of Log
