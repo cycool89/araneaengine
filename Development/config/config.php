@@ -1,12 +1,13 @@
 <?php
-use core\Config;
+use aecore\Config;
 
 Config::addEntry('Application', 'App');
 Config::addEntry('AppReqWord', 'Aranea');
 
-Config::addEntry('Module', 'Menu');
-Config::addEntry('Controller', 'menu');
-Config::addEntry('Method', 'index');
+//Alapértelmezett vezérlés
+Config::addEntry('Module', '');
+Config::addEntry('Controller', '');
+Config::addEntry('Method', '');
 Config::addEntry('Params', array(
     'index'
 ));
