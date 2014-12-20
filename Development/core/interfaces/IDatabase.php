@@ -1,12 +1,12 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * AraneaEngine adatbázis interface
  * 
  * 2014.11.22
  * @author Kigyós János <cycool89@gmail.com>
  */
-interface iDatabase {
+interface IDatabase {
 
   function connect($host, $username, $password, $dbname);
   

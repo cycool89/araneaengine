@@ -13,6 +13,7 @@ define('AE_VIEW_EXT', '.html');
  */
 define('AE_TEMPLATES', AE_BASE_DIR . 'Templates' . DS);
 
+require_once 'autoloader.php';
 require_once 'common.php';
 
 switch (AE_ENVIRONMENT) {

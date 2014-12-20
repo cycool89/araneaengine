@@ -1,12 +1,12 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * AraneaEngine MySqli osztály
  * 
  * 2014.02.02
  * @author Kigyós János <cycool89@gmail.com>
  */
-class mysqliDatabase extends aSingleton implements iDatabase {
+class MysqliDatabase extends ASingleton implements IDatabase {
 
   public $_mysql;
   protected $_type = '';
@@ -548,6 +548,10 @@ class mysqliDatabase extends aSingleton implements iDatabase {
 
   public function __destruct() {
     $this->_mysql->close();
+  }
+
+  protected function __construct() {
+    
   }
 
 }

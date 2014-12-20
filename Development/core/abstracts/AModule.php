@@ -1,11 +1,11 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * Description of aModule
  *
  * @author cycool89
  */
-abstract class aModule extends aClass {
+abstract class AModule extends AClass {
 
   /**
    * Végrehajtja a megadott paraméterek alapján

@@ -40,4 +40,4 @@ define('AE_CORE_DIR', AE_BASE_DIR . 'core' . DS);
 require_once AE_CORE_DIR . 'bootstrap.php';
 require_once AE_CORE_DIR . 'AraneaEngine.php';
 
-core\AE()->start();
+\aecore\AE()->start();

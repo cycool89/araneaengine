@@ -1,11 +1,11 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * Description of aClass
  *
  * @author cycool89
  */
-abstract class aClass {
+abstract class AClass {
 
   /** @var Loader */
   public $load;
@@ -33,10 +33,10 @@ abstract class aClass {
    * @return aModule
    */
   final public function getModule() {
-    return ($this instanceof aModule) ? $this : $this->module;
+    return ($this instanceof AModule) ? $this : $this->module;
   }
 
-  final public function setModule(aModule &$module) {
+  final public function setModule(AModule &$module) {
     $this->module = $module;
   }
 

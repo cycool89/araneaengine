@@ -1,15 +1,13 @@
 <?php
-namespace core;
+namespace aecore;
 /**
  * Description of aSingleton
  *
  * @author cycool89
  */
-abstract class aSingleton {
+abstract class ASingleton {
 
-  protected function __construct() {
-    
-  }
+  abstract protected function __construct();
 
   protected function __clone() {
     

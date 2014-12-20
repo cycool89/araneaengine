@@ -102,31 +102,6 @@ function tobbesszam($string) {
   return $string;
 }
 
-function autoload($c) {
-  $parts = explode('\\', $c);
-  $class = end($parts);
-  $path = '';
-  switch ($class[0]) {
-    case 'i':
-      $path = 'Interfaces';
-      break;
-    case 'a':
-      $path = 'Abstracts';
-      break;
-    case 's':
-      $path = 'Singletons';
-      break;
-    default:
-      $path = 'Classes';
-      break;
-  }
-  if (file_exists(AE_CORE_DIR . $path . DS . $class . AE_EXT)) {
-    require_once AE_CORE_DIR . $path . DS . $class . AE_EXT;
-  }
-}
-
-spl_autoload_register('autoload');
-
 function getClassName($c) {
   if (is_object($c))
     $c = get_class($c);
