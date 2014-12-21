@@ -54,7 +54,11 @@ class View extends \Smarty {
     $moduleName = explode(DS, $template);
     $moduleName = $moduleName[0];
     $this->incDir = AE_BASE_PATH . basename(AE_TEMPLATES) . DS . $moduleName . DS;
-    $dom_object = file_get_html($this->getTemplateDir(0) . $template);
+    if (file_exists($this->getTemplateDir(0) . $template)) {
+      $dom_object = file_get_html($this->getTemplateDir(0) . $template);
+    } else {
+      Log::write("Nincs ilyen template fájl: " . $template, true, 1, 2);
+    }
     $html = $this->_globalizeHTML($dom_object);
     return parent::createTemplate('string:' . $html, $cache_id, $compile_id, $parent, $do_clone);
   }
