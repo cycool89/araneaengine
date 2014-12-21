@@ -22,7 +22,7 @@ class Log {
       $content .= "Created: $time";
     }
     $new = "\n$time : $msg\n";
-    $new .= "\t{$debug['file']}\n\tFully-qualified name: {$debug['fullClassName']}\n\t\${$debug['class']}->{$debug['func']}() : {$debug['line']}. sor\n";
+    $new .= "\t{$debug['file']}\n\tFully-qualified name: {$debug['fullClassName']}\n\t{$debug['class']}->{$debug['func']}() : {$debug['line']}. sor\n";
     $content = $new . $content;
     file_force_contents($file, $content);
 
