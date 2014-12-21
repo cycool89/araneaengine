@@ -46,6 +46,19 @@ class Loader {
     $this->incDir = $inc_dir;
   }
 
+  public function &__call($name, $arguments) {
+    $className = array_shift($arguments);
+    
+    $path = ucfirst(AEstr()->pluralize($name));
+    $rModule = new \ReflectionClass($this->parent->getModule());
+    $namespace = "\\" . $rModule->getNamespaceName() . "\\" . strtolower(str_replace(DS, "\\", $path)) . "\\";
+    $fullName = $namespace . $className;
+    require_once $this->incDir . $path . DS . $className . AE_EXT;
+    $rc = new \ReflectionClass($fullName);
+    $this->parent->$className = $rc->newInstance($arguments);
+    return $this->parent->$className;
+  }
+
   /**
    * Controller hozzáadása
    * 
@@ -56,9 +69,9 @@ class Loader {
    * /Controllers/<var>$name</var>.php helyen kell legyen.
    * 
    * @param string $name
-   * @return mixed A <var>$name</var> objektum boot() metódusának visszatérési értéke
+   * @return AController A <var>$name</var> controller
    */
-  public function controller($name) {
+  public function &controller($name) {
     $fullName = $this->load($name, 'Controllers');
     if ($this->parent->$name instanceof aFormController && !is_null(Request::POST(get_class($this->parent->$name)))) {
       $this->parent->$name->setValues(Request::POST(get_class($this->parent->$name)));
@@ -71,7 +84,7 @@ class Loader {
       AE()->getApplication()->view->assign('errors', $this->parent->$name->getErrors());
     }
     $this->parent->$name = new Proxy(self::$classes[$fullName]);
-    return $this->parent->$name->getBootValue();
+    return $this->parent->$name;
   }
 
   /**
@@ -84,11 +97,11 @@ class Loader {
    * /Models/<var>$name</var>.php helyen kell legyen.
    * 
    * @param string $name
-   * @return mixed A <var>$name</var> objektum boot() metódusának visszatérési értéke
+   * @return AModel A <var>$name</var> model
    */
-  public function model($name) {
+  public function &model($name) {
     $fullName = $this->load($name, 'Models');
-    return $this->parent->$name->getBootValue();
+    return $this->parent->$name;
   }
 
   /**
@@ -101,11 +114,11 @@ class Loader {
    * /Modules/<var>$name</var>/<var>$name</var>.php helyen kell legyen.
    * 
    * @param string $name
-   * @return mixed A <var>$name</var> objektum boot() metódusának visszatérési értéke
+   * @return AModule A <var>$name</var> almodul
    */
-  public function submodule($name) {
+  public function &submodule($name) {
     $fullName = $this->load($name, 'Submodules' . DS . $name, false);
-    return $this->parent->$name->getBootValue();
+    return $this->parent->$name;
   }
 
   /**
@@ -118,12 +131,12 @@ class Loader {
    * /Modules/<var>$name</var>/<var>$name</var>.php helyen kell legyen.
    * 
    * @param string $name
-   * @return mixed A <var>$name</var> objektum boot() metódusának visszatérési értéke
+   * @return AModule A <var>$name</var> modul
    */
-  public function module($name) {
+  public function &module($name) {
     $path = Config::getEntry('ModuleDirectory') . $name . DS;
     $fullName = $this->load($name, $path, true);
-    return $this->parent->$name->getBootValue();
+    return $this->parent->$name;
   }
 
   /**
@@ -176,9 +189,9 @@ class Loader {
    * @return mixed A module elérési útvonala, egyébként false
    */
   public static function isModuleExists($moduleName) {
-
-    if (file_exists(Config::getEntry('ModuleDirectory') . $moduleName . DS . $moduleName . AE_EXT)) {
-      return Config::getEntry('ModuleDirectory') . $moduleName . DS;
+    $path = DS . trim(Config::getEntry('ModuleDirectory'), DS) . DS;
+    if (file_exists($path . $moduleName . DS . $moduleName . AE_EXT)) {
+      return $path . $moduleName . DS;
     }
     return false;
   }
@@ -259,7 +272,7 @@ class Loader {
     $fullName = '';
     if (!$absolutePath) {
       $rModule = new \ReflectionClass($this->parent->getModule());
-      $namespace = "\\" . $rModule->getNamespaceName() . "\\" . strtolower(str_replace(DS,"\\",$path)) . "\\";
+      $namespace = "\\" . $rModule->getNamespaceName() . "\\" . strtolower(str_replace(DS, "\\", $path)) . "\\";
       $fullName = $namespace . $name;
       require_once $this->incDir . $path . DS . $name . AE_EXT;
     } else {

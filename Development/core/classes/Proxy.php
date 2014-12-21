@@ -21,7 +21,7 @@ class Proxy {
       return $ret;
     } else {
       $class = get_class($this->proxifiedClass);
-      throw new BadMethodCallException("No callable method $methodName at $class class");
+      throw new \BadMethodCallException("No callable method $methodName at $class class");
     }
   }
 
