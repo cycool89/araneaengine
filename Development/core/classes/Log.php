@@ -22,13 +22,13 @@ class Log {
       $content .= "Created: $time";
     }
     $new = "\n$time : $msg\n";
-    $new .= "\t{$debug['file']}\n\t\${$debug['class']}->{$debug['func']}() : {$debug['line']}\n";
+    $new .= "\t{$debug['file']}\n\tFully-qualified name: {$debug['fullClassName']}\n\t\${$debug['class']}->{$debug['func']}() : {$debug['line']}. sor\n";
     $content = $new . $content;
     file_force_contents($file, $content);
 
     if ($show && AE_DEBUG_MODE) {
       echo "<pre>$time : <b>$msg</b>\n";
-      echo "\t{$debug['file']}\n\t\${$debug['class']}->{$debug['func']} : {$debug['line']}</pre>";
+      echo "\t{$debug['file']}\n\tFully-qualified name: {$debug['fullClassName']}\n\t{$debug['class']}->{$debug['func']} : {$debug['line']}. sor</pre>";
     }
     if ($exit) {
       exit();
@@ -52,6 +52,7 @@ class Log {
     return array(
       'file' => AE_BASE_PATH . str_replace(AE_BASE_DIR, '', $file),
       'class' => getClassName($class),
+      'fullClassName' => $class,
       'func' => $func,
       'line' => $line
     );

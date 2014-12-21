@@ -48,14 +48,21 @@ class Loader {
 
   public function &__call($name, $arguments) {
     $className = array_shift($arguments);
-    
     $path = ucfirst(AEstr()->pluralize($name));
     $rModule = new \ReflectionClass($this->parent->getModule());
     $namespace = "\\" . $rModule->getNamespaceName() . "\\" . strtolower(str_replace(DS, "\\", $path)) . "\\";
     $fullName = $namespace . $className;
-    require_once $this->incDir . $path . DS . $className . AE_EXT;
-    $rc = new \ReflectionClass($fullName);
-    $this->parent->$className = $rc->newInstance($arguments);
+    if (file_exists($this->incDir . $path . DS . $className . AE_EXT)) {
+      require_once $this->incDir . $path . DS . $className . AE_EXT;
+    } else {
+      Log::write("Nincs ilyen ".$name.": ".$className, true, true, 2);
+    }
+    if (method_exists($className, '__construct')) {
+      $rc = new \ReflectionClass($className);
+      $this->parent->$className = $rc->newInstanceArgs($arguments);
+    } else {
+      $this->parent->$className = new $className();
+    }
     return $this->parent->$className;
   }
 
@@ -274,12 +281,20 @@ class Loader {
       $rModule = new \ReflectionClass($this->parent->getModule());
       $namespace = "\\" . $rModule->getNamespaceName() . "\\" . strtolower(str_replace(DS, "\\", $path)) . "\\";
       $fullName = $namespace . $name;
-      require_once $this->incDir . $path . DS . $name . AE_EXT;
+      if (file_exists($this->incDir . $path . DS . $name . AE_EXT)) {
+        require_once $this->incDir . $path . DS . $name . AE_EXT;
+      } else {
+        Log::write("Nincs ilyen osztály: ". $fullName,true,true,2);
+      }
     } else {
       $path = trim($path, DS);
-      require_once DS . $path . DS . $name . AE_EXT;
       $namespace = "\\application\\" . strtolower($name) . '\\';
       $fullName = $namespace . $name;
+      if (file_exists(DS . $path . DS . $name . AE_EXT)) {
+        require_once DS . $path . DS . $name . AE_EXT;
+      } else {
+        Log::write("Nincs ilyen osztály: ". $fullName,true,true,2);
+      }
     }
     if (!Loader::isLoaded($fullName)) {
       self::$classes[$fullName] = new $fullName();
