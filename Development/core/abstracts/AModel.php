@@ -9,8 +9,8 @@ namespace aecore;
  */
 abstract class AModel extends AClass {
 
-  /** @var iDatabase */
   protected $pairedValues = array();
+  /** @var iDatabase */
   protected $db = null;
   protected $table = '';
   protected $prefix = '';

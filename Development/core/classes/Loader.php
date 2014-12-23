@@ -55,7 +55,7 @@ class Loader {
     if (file_exists($this->incDir . $path . DS . $className . AE_EXT)) {
       require_once $this->incDir . $path . DS . $className . AE_EXT;
     } else {
-      Log::write("Nincs ilyen ".$name.": ".$className, true, true, 2);
+      Log::write("Nincs ilyen " . $name . ": " . $className, true, true, 2);
     }
     if (method_exists($className, '__construct')) {
       $rc = new \ReflectionClass($className);
@@ -124,7 +124,7 @@ class Loader {
    * @return AModule A <var>$name</var> almodul
    */
   public function &submodule($name) {
-    $fullName = $this->load($name, 'Submodules' . DS . $name, false);
+    $fullName = $this->load($name, $this->incDir . 'Submodules' . DS . $name, true);
     return $this->parent->$name;
   }
 
@@ -276,24 +276,29 @@ class Loader {
   }
 
   private function load($name, $path, $absolutePath = false) {
+    $rModule = new \ReflectionClass($this->parent->getModule());
+    $newIncDir = trim(dirname($rModule->getFileName()), DS);
     $fullName = '';
     if (!$absolutePath) {
-      $rModule = new \ReflectionClass($this->parent->getModule());
+
       $namespace = "\\" . $rModule->getNamespaceName() . "\\" . strtolower(str_replace(DS, "\\", $path)) . "\\";
       $fullName = $namespace . $name;
-      if (file_exists($this->incDir . $path . DS . $name . AE_EXT)) {
-        require_once $this->incDir . $path . DS . $name . AE_EXT;
+
+      $path = $newIncDir . DS . trim($path, DS);
+      if (file_exists(DS . $path . DS . $name . AE_EXT)) {
+        require_once DS . $path . DS . $name . AE_EXT;
       } else {
-        Log::write("Nincs ilyen osztály: ". $fullName,true,true,2);
+        Log::write("Nincs ilyen osztály: " . $fullName, true, true, 2);
       }
     } else {
       $path = trim($path, DS);
-      $namespace = "\\application\\" . strtolower($name) . '\\';
+      $namespace = strtolower(basename(dirname($path)));
+      $namespace = "\\application\\" . $namespace . "\\" . strtolower($name) . '\\';
       $fullName = $namespace . $name;
       if (file_exists(DS . $path . DS . $name . AE_EXT)) {
         require_once DS . $path . DS . $name . AE_EXT;
       } else {
-        Log::write("Nincs ilyen osztály: ". $fullName,true,true,2);
+        Log::write("Nincs ilyen osztály: " . $fullName, true, true, 2);
       }
     }
     if (!Loader::isLoaded($fullName)) {
@@ -306,7 +311,7 @@ class Loader {
         $module = $this->parent->getModule();
         self::$classes[$fullName]->setModule($module);
         //Loader hozzáadása
-        $loader = new Loader(self::$classes[$fullName], DS . $path . DS);
+        $loader = new Loader(self::$classes[$fullName], DS . $newIncDir . DS);
         self::$classes[$fullName]->setLoader($loader);
       }
       self::$classes[$fullName]->setBootValue(self::$classes[$fullName]->boot());
