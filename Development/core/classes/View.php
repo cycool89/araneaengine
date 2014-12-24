@@ -52,8 +52,8 @@ class View extends \Smarty {
 
   public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true) {
     $moduleName = explode(DS, $template);
-    $moduleName = $moduleName[0];
-    $this->incDir = AE_BASE_PATH . basename(AE_TEMPLATES) . DS . $moduleName . DS;
+    $file = array_pop($moduleName);
+    $this->incDir = AE_BASE_PATH . basename(AE_TEMPLATES) . DS . implode('/',$moduleName) . DS;
     if (file_exists($this->getTemplateDir(0) . $template)) {
       $dom_object = file_get_html($this->getTemplateDir(0) . $template);
     } else {

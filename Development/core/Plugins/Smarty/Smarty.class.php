@@ -422,7 +422,7 @@ class Smarty extends Smarty_Internal_TemplateBase
      *
      * @var type
      */
-    public $smarty_debug_id = 'SMARTY_DEBUG';
+    public $smarty_debug_id = 'AE_SMARTY_DEBUG';
     /**
      * Path of debug template.
      *
