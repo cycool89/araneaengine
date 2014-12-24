@@ -1,5 +1,7 @@
 <?php
+
 namespace aecore;
+
 class URL {
 
   private static $URL = array();
@@ -23,7 +25,7 @@ class URL {
   }
 
   static function makeArrayFromURI($string) {
-    $URL = trim($string,'/');
+    $URL = trim($string, '/');
     $URL = explode('/', strip_tags($URL));
     array_walk_recursive($URL, 'strip_tags');
     return $URL;
@@ -67,9 +69,15 @@ class URL {
    * @param string $url
    */
   static function redirect($url) {
+    
+    if (!AE_MOD_REWRITE) {
+      $url = '/index.php' . $url;
+    }
+
     if (strpos($url, 'http') === false) {
       $url = self::implode(AE_BASE_PATH, $url); //BASE_PATH . $url;
     }
+
 
     if (!headers_sent()) {
       header('Location: ' . $url);

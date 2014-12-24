@@ -228,7 +228,7 @@ class Loader {
    * @return boolean
    */
   public static function isMethodExists($module, $controller, $method) {
-    $namespace = "\\application\\" . strtolower($module) . "\\controllers\\";
+    $namespace = "\\application\\modules\\" . strtolower($module) . "\\controllers\\";
     $fullName = $namespace . $controller;
     $dir = self::isControllerExists($module, $controller);
     if ($dir) {

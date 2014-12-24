@@ -33,8 +33,9 @@ function req_dir($pathname, $file_ext = 'all', $one = false) {
  * @param string dir
  */
 function mkdir_r($dir, $mode = 0775) {
+  $dir = str_replace(AE_BASE_DIR,'',$dir);
   $parts = explode(DS, $dir);
-  $dir = array_shift($parts);
+  $dir = AE_BASE_DIR . DS . array_shift($parts);
   foreach ($parts as $part) {
     if (!is_dir($dir .= DS . $part)) {
       $old = umask(0);
@@ -43,6 +44,7 @@ function mkdir_r($dir, $mode = 0775) {
       chmod($dir, $mode);
     }
   }
+  return $dir;
 }
 
 /**
@@ -54,15 +56,9 @@ function mkdir_r($dir, $mode = 0775) {
 function file_force_contents($dir, $contents, $mode = 0775) {
   $parts = explode(DS, $dir);
   $file = array_pop($parts);
-  $dir = array_shift($parts);
-  foreach ($parts as $part) {
-    if (!is_dir($dir .= DS . $part)) {
-      $old = umask(0);
-      mkdir($dir, $mode);
-      umask($old);
-      chmod($dir, $mode);
-    }
-  }
+  
+  $dir = mkdir_r(DS . implode(DS,$parts) . DS,$mode);
+  
   file_put_contents($dir . DS . $file, $contents);
   chmod($dir . DS . $file, $mode);
 }
