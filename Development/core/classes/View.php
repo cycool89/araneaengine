@@ -118,7 +118,7 @@ class View extends \Smarty {
       }
       $modrewrite = (AE_MOD_REWRITE) ? '' : 'index.php/';
       $e->$attr = AE_BASE_PATH . $modrewrite . implode('/', $hrefPieces);
-      if ($e->$attr[strlen($e->$attr) - 1] !== '/') {
+      if ($e->$attr[strlen($e->$attr) - 1] !== '/' && strpos($e->$attr, '?') === false) {
         $e->$attr .= '/';
       }
     }
