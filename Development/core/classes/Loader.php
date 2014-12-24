@@ -87,8 +87,8 @@ class Loader {
       if (empty($errors)) {
         $this->parent->$name->storeData();
       }
-      AE()->getApplication()->view->assign('values', $this->parent->$name->getValues());
-      AE()->getApplication()->view->assign('errors', $this->parent->$name->getErrors());
+      AE()->getApplication()->getView()->assign('values', $this->parent->$name->getValues());
+      AE()->getApplication()->getView()->assign('errors', $this->parent->$name->getErrors());
     }
     $this->parent->$name = new Proxy(self::$classes[$fullName]);
     return $this->parent->$name;
