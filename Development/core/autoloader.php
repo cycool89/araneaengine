@@ -14,6 +14,9 @@ function autoload($c) {
       case 'I':
         $type .= 'interfaces' . DS;
         break;
+      case 'H':
+        $type .= 'helpers' . DS;
+        break;
       default:
         $type .= 'classes' . DS;
         break;
