@@ -10,6 +10,7 @@ namespace aecore;
 abstract class AModel extends AClass {
 
   protected $pairedValues = array();
+
   /** @var iDatabase */
   protected $db = null;
   protected $table = '';
@@ -22,8 +23,8 @@ abstract class AModel extends AClass {
     $this->db = AE()->getDatabase();
     if ($this->table == '' || $this->prefix == '') {
       $c = new \ReflectionClass($this);
-      $file = AE_BASE_PATH . str_replace(AE_BASE_DIR,'',$c->getFileName());
-      Log::write("Nincs definiálva \$table vagy \$prefix a modelben!\n\t\t\t".$file,true, true);
+      $file = AE_BASE_PATH . str_replace(AE_BASE_DIR, '', $c->getFileName());
+      Log::write("Nincs definiálva \$table vagy \$prefix a modelben!\n\t\t\t" . $file, true, true);
     }
     $sql = sprintf('CREATE TABLE IF NOT EXISTS %s ('
             . '%sid INT(11) AUTO_INCREMENT PRIMARY KEY NOT NULL) '
@@ -93,7 +94,9 @@ abstract class AModel extends AClass {
         $surl .= '-' . $itemId;
       }
       $this->pair($toField, $surl);
-      $this->updateItem($itemId);
+      $this->db->addWhere($this->id_field, $itemId);
+      $this->db->update($this->table, $this->pairedValues);
+      $this->pairedValues = array();
       return $surl;
     }
   }
@@ -163,7 +166,7 @@ abstract class AModel extends AClass {
     if ($id !== false) {
       $this->_genShortUrl($id);
     } else {
-      Log::write("addItem() sikertelen.",true,false,1);
+      Log::write("addItem() sikertelen.", true, false, 1);
     }
     return $id;
   }
@@ -177,10 +180,10 @@ abstract class AModel extends AClass {
     $this->db->addWhere($this->id_field, $id);
     $success = $this->db->update($this->table, $this->pairedValues);
     $this->pairedValues = array();
-    if ($success !== false) {
+    if ($success === true) {
       $this->_genShortUrl($id);
     } else {
-      Log::write("updateItem() sikertelen.",true,false,1);
+      Log::write("updateItem() sikertelen.", true, false, 1);
     }
     return $success;
   }
