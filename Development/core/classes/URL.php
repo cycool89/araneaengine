@@ -69,15 +69,13 @@ class URL {
    * @param string $url
    */
   static function redirect($url) {
-    
-    if (!AE_MOD_REWRITE) {
-      $url = '/index.php' . $url;
-    }
 
     if (strpos($url, 'http') === false) {
+      if (!AE_MOD_REWRITE) {
+        $url = '/index.php' . $url;
+      }
       $url = self::implode(AE_BASE_PATH, $url); //BASE_PATH . $url;
     }
-
 
     if (!headers_sent()) {
       header('Location: ' . $url);

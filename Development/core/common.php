@@ -34,8 +34,8 @@ function req_dir($pathname, $file_ext = 'all', $one = false) {
  */
 function mkdir_r($dir, $mode = 0775) {
   $dir = str_replace(AE_BASE_DIR,'',$dir);
-  $parts = explode(DS, $dir);
-  $dir = AE_BASE_DIR . DS . array_shift($parts);
+  $parts = explode(DS, trim($dir,DS));
+  $dir = AE_BASE_DIR . array_shift($parts);
   foreach ($parts as $part) {
     if (!is_dir($dir .= DS . $part)) {
       $old = umask(0);
@@ -54,9 +54,9 @@ function mkdir_r($dir, $mode = 0775) {
  * @param string $contents
  */
 function file_force_contents($dir, $contents, $mode = 0775) {
-  $parts = explode(DS, $dir);
+  $parts = explode(DS, trim($dir,DS));
   $file = array_pop($parts);
-  
+
   $dir = mkdir_r(DS . implode(DS,$parts) . DS,$mode);
   
   file_put_contents($dir . DS . $file, $contents);
