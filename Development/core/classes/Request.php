@@ -192,8 +192,14 @@ class Request {
     return self::$Method;
   }
 
-  public static function Params() {
-    return self::$Params;
+  public static function Params($num = -1) {
+    if (is_string($num)) {
+      return array_search($num, self::$Params);
+    } elseif ($num >= 0) {
+      return (isset(self::$Params[$num]) && self::$Params[$num] != '') ? self::$Params[$num] : false;
+    } else {
+      return (isset(self::$Params[0]) && self::$Params[0] != '') ? self::$Params : false;
+    }
   }
 
   public static function isAppReq() {
@@ -217,11 +223,5 @@ Request::initRequest();
  * @return mixed
  */
 function param($num = -1) {
-  if (is_string($num)) {
-    return array_search($num, Request::$Params);
-  } elseif ($num >= 0) {
-    return (isset(Request::$Params[$num]) && Request::$Params[$num] != '') ? Request::$Params[$num] : false;
-  } else {
-    return (isset(Request::$Params[0]) && Request::$Params[0] != '') ? Request::$Params : false;
-  }
+  return Request::Params($num);
 }
