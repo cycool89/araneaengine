@@ -16,9 +16,13 @@ class Proxy {
     if (is_callable(array($this->proxifiedClass, $methodName))) {
       $ret = false;
 
-      if (AE()->getApplication()->beforeCall(get_class($this->proxifiedClass), $methodName) === true) {
-        $ret = call_user_func_array(array(&$this->proxifiedClass, $methodName), $arguments);
-        AE()->getApplication()->afterCall(get_class($this->proxifiedClass), $methodName);
+      if (!$this->recursiveCheck) {
+        $this->recursiveCheck = true;
+        if (AE()->getApplication()->beforeCall(get_class($this->proxifiedClass), $methodName) === true) {
+          $ret = call_user_func_array(array(&$this->proxifiedClass, $methodName), $arguments);
+          AE()->getApplication()->afterCall(get_class($this->proxifiedClass), $methodName);
+        }
+        $this->recursiveCheck = false;
       }
       return $ret;
     } else {

@@ -15,6 +15,7 @@ class Loader {
    * @var aClass
    */
   private static $classes = array();
+  private static $prixifiedClasses = array();
 
   /**
    * Az objektum ami tartalmazza a Loader osztály
@@ -90,7 +91,10 @@ class Loader {
       AE()->getApplication()->getView()->assign('values', $this->parent->$name->getValues());
       AE()->getApplication()->getView()->assign('errors', $this->parent->$name->getErrors());
     }
-    $this->parent->$name = new Proxy(self::$classes[$fullName]);
+    if (!isset(self::$prixifiedClasses[$fullName])) {
+      self::$prixifiedClasses[$fullName] = new Proxy(self::$classes[$fullName]);
+    }
+    $this->parent->$name =& self::$prixifiedClasses[$fullName];
     return $this->parent->$name;
   }
 
@@ -317,7 +321,7 @@ class Loader {
       self::$classes[$fullName]->setBootValue(self::$classes[$fullName]->boot());
     }
 
-    $this->parent->$name = self::$classes[$fullName];
+    $this->parent->$name =& self::$classes[$fullName];
 
     return $fullName;
   }
