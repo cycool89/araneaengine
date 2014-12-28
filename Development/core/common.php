@@ -33,8 +33,8 @@ function req_dir($pathname, $file_ext = 'all', $one = false) {
  * @param string dir
  */
 function mkdir_r($dir, $mode = 0775) {
-  $dir = str_replace(AE_BASE_DIR,'',$dir);
-  $parts = explode(DS, trim($dir,DS));
+  $dir = str_replace(AE_BASE_DIR, '', $dir);
+  $parts = explode(DS, trim($dir, DS));
   $dir = AE_BASE_DIR . array_shift($parts);
   foreach ($parts as $part) {
     if (!is_dir($dir .= DS . $part)) {
@@ -54,11 +54,11 @@ function mkdir_r($dir, $mode = 0775) {
  * @param string $contents
  */
 function file_force_contents($dir, $contents, $mode = 0775) {
-  $parts = explode(DS, trim($dir,DS));
+  $parts = explode(DS, trim($dir, DS));
   $file = array_pop($parts);
 
-  $dir = mkdir_r(DS . implode(DS,$parts) . DS,$mode);
-  
+  $dir = mkdir_r(DS . implode(DS, $parts) . DS, $mode);
+
   file_put_contents($dir . DS . $file, $contents);
   chmod($dir . DS . $file, $mode);
 }
@@ -67,10 +67,10 @@ function tobbesszam($string) {
   $string = strtolower($string);
   $maganhangzok = array("a", "e", "i", "o", "u");
   $kivetelek = array(
-      "man" => "men",
-      "woman" => "women",
-      "child" => "children",
-      "mouse" => "mice",
+    "man" => "men",
+    "woman" => "women",
+    "child" => "children",
+    "mouse" => "mice",
   );
 
   if (in_array($string, array_keys($kivetelek))) {
@@ -106,16 +106,22 @@ function getClassName($c) {
   return $class;
 }
 
-function getMemoryUsage($real_usage = false) {
+function getMemoryUsage($real_usage = false, $text = false) {
   $mem_usage = memory_get_usage($real_usage);
 
+  $ret = ($text) ? bitToText($mem_usage) : $mem_usage;
+  
+  return $ret;
+}
+
+function bitToText($bits) {
   $ret = '';
-  if ($mem_usage < 1024) {
-    $ret .= $mem_usage . " b";
-  } elseif ($mem_usage < 1048576) {
-    $ret .= round($mem_usage / 1024, 2) . " Kb";
+  if ($bits < 1024) {
+    $ret .= $bits . " b";
+  } elseif ($bits < 1048576) {
+    $ret .= round($bits / 1024, 2) . " Kb";
   } else {
-    $ret .= round($mem_usage / 1048576, 2) . " Mb";
+    $ret .= round($bits / 1048576, 2) . " Mb";
   }
   return $ret;
 }

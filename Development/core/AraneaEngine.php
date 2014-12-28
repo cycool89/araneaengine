@@ -9,6 +9,7 @@ class AraneaEngine extends ASingleton {
 
   const VERSION = "0.1.0";
   private $startTime = 0;
+  private $startMem = 0;
 
   private $plugins = array(
       'Smarty' => 'Smarty.class.php',
@@ -24,6 +25,7 @@ class AraneaEngine extends ASingleton {
 
   protected function __construct() {
     $this->startTime = microtime(true);
+    $this->startMem = getMemoryUsage(true, false);
     require_once AE_BASE_DIR . 'config' . DS . 'dbconfig' . AE_EXT;
     require_once AE_BASE_DIR . 'config' . DS . 'config' . AE_EXT;
     URL::initURL();
@@ -41,6 +43,8 @@ class AraneaEngine extends ASingleton {
     }
     $this->application = Loader::loadApplication(Config::getEntry('Application'), true);
     $view = new View();
+    $view->clearAllCache(3600);
+    $view->clearCompiledTemplate(null,null,3600);
     $view->assign('AE_VERSION',  self::VERSION);
     $this->application->setView($view);
     $this->application->setModule($this->application);
@@ -82,6 +86,13 @@ class AraneaEngine extends ASingleton {
     $eT = $endTime - $this->startTime;
     
     return round($eT,4);
+  }
+  
+  public function usedMemory() {
+    $endMem = getMemoryUsage(true, false);
+    $uM = $endMem - $this->startMem;
+    
+    return bitToText($uM);
   }
 
 }
