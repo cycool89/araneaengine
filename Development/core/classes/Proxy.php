@@ -1,5 +1,7 @@
 <?php
+
 namespace aecore;
+
 class Proxy {
 
   /** @var aFormController */
@@ -14,13 +16,15 @@ class Proxy {
     if (is_callable(array($this->proxifiedClass, $methodName))) {
       $ret = false;
 
-      if (AE()->getApplication()->beforeCall(get_class($this->proxifiedClass), $methodName) === true) {
+      if (!$this->recursiveCheck && AE()->getApplication()->beforeCall(get_class($this->proxifiedClass), $methodName) === true) {
+        $this->recursiveCheck = true;
         $ret = call_user_func_array(array(&$this->proxifiedClass, $methodName), $arguments);
         AE()->getApplication()->afterCall(get_class($this->proxifiedClass), $methodName);
       }
       return $ret;
     } else {
       $class = get_class($this->proxifiedClass);
+      Log::write("Hibás metódusnév: {$class}->{$methodName}()", true, true, 2);
       throw new \BadMethodCallException("No callable method $methodName at $class class");
     }
   }
