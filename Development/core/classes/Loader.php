@@ -94,7 +94,7 @@ class Loader {
     if (!isset(self::$prixifiedClasses[$fullName])) {
       self::$prixifiedClasses[$fullName] = new Proxy(self::$classes[$fullName]);
     }
-    $this->parent->$name =& self::$prixifiedClasses[$fullName];
+    $this->parent->$name = & self::$prixifiedClasses[$fullName];
     return $this->parent->$name;
   }
 
@@ -154,21 +154,26 @@ class Loader {
    * Nézet betöltése
    * 
    * A <var>$name</var> paraméter alapján létrehoz egy Smarty_Internal_template objektumot.
+   * Ha <var>$alias</var> paraméter nem üres, akkor később ezen a néven lesz elérhető.
    * A $this->view->getTemplate() metódus visszatérési értékében a
    * következőképp fog szerepelni:
    * 
    * $t = $this->view->getTemplates();
    * 
    * $t[Modulenév][$name];
+   * vagy
+   * $t[Modulenév][$alias];
    * 
    * @param string $name
+   * @param string $alias
    * @return \Smarty_Internal_Template
    */
-  public function &view($name) {
+  public function &view($name, $alias = '') {
     $view = AE()->getApplication()->getView();
-    $module = getClassName($this->parent->getModule());
-    $tpl = $view->createTemplate($module . DS . $name . AE_VIEW_EXT, null, null, $view);
-    $view->addTemplate($module, $name, $tpl);
+    $shortName = getClassName($this->parent->getModule());
+    $alias = ($alias == '' && is_string($alias)) ? $name : $alias;
+    $tpl = $view->createTemplate($shortName . DS . $name . AE_VIEW_EXT, null, null, $view);
+    $view->addTemplate($shortName, $alias, $tpl);
     return $tpl;
   }
 
@@ -321,7 +326,7 @@ class Loader {
       self::$classes[$fullName]->setBootValue(self::$classes[$fullName]->boot());
     }
 
-    $this->parent->$name =& self::$classes[$fullName];
+    $this->parent->$name = & self::$classes[$fullName];
 
     return $fullName;
   }
