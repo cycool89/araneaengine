@@ -34,39 +34,75 @@ class Request {
     if (isset($url[$reqStartIndex]) && strpos($url[$reqStartIndex], 'Module:') === 0) {
       $url[$reqStartIndex] = str_replace('Module:', '', $url[$reqStartIndex]);
     }
-    $langs = array_keys(Config::getEntry('Languages'));
+
+    //$langs = array_keys(Config::getEntry('Languages'));
     if (Config::getEntry('Multilanguage')) {
-      if (!Session::get('lang')) {
-        if (isset($url[0]) && in_array($url[0], $langs)) {
-          Session::set('lang', config::getLanguage($url[0]));
-          array_shift($url);
-        } else {
-          Session::set('lang', config::getDefaultLanguage());
-          URL::redirect('/' . Session::get('lang', 'code') . '/');
-        }
-      } elseif (isset($url[0])) {
-        if (Session::get('lang', 'code') !== $url[0]) {
-          if (in_array($url[0], $langs)) {
-            Session::set('lang', config::getLanguage($url[0]));
-            array_shift($url);
-          } else {
-            URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo());
-          }
-        } else {
-          array_shift($url);
-        }
-      } elseif (!isset($url[0])) {
-        URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . '/');
+      $foundLanguage = false;
+      $i = 0;
+      while ($i < count($url) && $foundLanguage === false) {
+        $foundLanguage = Config::isLanguage($url[$i]);
+        $i++;
       }
-    } elseif (Session::get('lang')) {
-
-      Session::del('lang');
-    }
-
-    if (isset($url[0]) && $url[0] === self::$key_word) {
-      self::$appReq = true;
+      if ($foundLanguage === false) {
+        if (!Session::get('lang')) {
+          Session::set('lang', Config::getDefaultLanguage());
+        }
+        $url = array_merge(array(Session::get('lang', 'code')), $url);
+        URL::redirect('/' . implode('/', $url) . '/' . self::getQueryString());
+      } else {
+        $urlLang = Config::getLanguage($url[$i - 1]);
+        $temp = $url[$i - 1];
+        unset($url[$i - 1]); //Közbülső helyről eltűntet
+        $url = array_values($url); //Tömb újraszámozása
+        $url = array_merge(array($temp), $url); //Tömb eléfűzése
+        if (!Session::get('lang') || Session::get('lang', 'code') !== $urlLang['code'] || $i != 1) {
+          Session::set('lang', Config::getLanguage($temp));
+          URL::redirect('/' . implode('/', $url) . '/' . self::getQueryString());
+        }
+      }
       array_shift($url);
     }
+    
+    $appreq = array_search(self::$key_word, $url);
+    if ($appreq !== false) {
+      self::$appReq = true;
+      unset($url[$appreq]); //Közbülső helyről eltűntet
+      $url = array_values($url); //Tömb újraszámozása
+    }
+
+    /* if (Config::getEntry('Multilanguage')) {
+      if (!Session::get('lang')) {
+      if (isset($url[0]) && in_array($url[0], $langs)) {
+      Session::set('lang', config::getLanguage($url[0]));
+      array_shift($url);
+      } else {
+      Session::set('lang', config::getDefaultLanguage());
+      URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . self::getQueryString());
+      }
+      } elseif (isset($url[0])) {
+      if (Session::get('lang', 'code') !== $url[0]) {
+      if (in_array($url[0], $langs)) {
+      Session::set('lang', config::getLanguage($url[0]));
+      array_shift($url);
+      } else {
+      URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . self::getQueryString());
+      }
+      } else {
+      array_shift($url);
+      }
+      } elseif (!isset($url[0])) {
+      URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . self::getQueryString());
+      }
+      } elseif (Session::get('lang')) {
+      Session::del('lang');
+      } */
+
+
+
+    /* if (isset($url[0]) && $url[0] === self::$key_word) {
+      self::$appReq = true;
+      array_shift($url);
+      } */
 
     $def_req['Module'] = Config::getEntry('Module');
     $def_req['Controller'] = Config::getEntry('Controller');
@@ -122,6 +158,14 @@ class Request {
 
     $p = self::makeParamsFromArray($url, $which);
     return array('Module' => $m, 'Controller' => $c, 'Method' => $me, 'Params' => $p);
+  }
+
+  public static function getQueryString() {
+    $get = array();
+    foreach (self::$GET as $key => $value) {
+      $get[] = $key . '=' . $value;
+    }
+    return (!empty($get)) ? '?' . implode('&', $get) : '';
   }
 
   static function makeParams() {
