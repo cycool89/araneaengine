@@ -18,13 +18,19 @@ define('_NAME', 'Kigyós János');
 define('_DOMAIN', 'araneaengine.hu');
 define('_EMAIL', 'info@araneaengine.hu');
 
+$env = 'final';
+if (strpos($_SERVER['HTTP_HOST'], 'localhost') === false) {
+  $env = 'development';
+} else {
+  $env = 'product';
+}
 /**
  * Környezet beállítása<br>
  * 'development': error_reporting(E_ALL);<br>
  * 'product'    : error_reporting(E_ALL & ~E_NOTICE)<br>
  * 'final'      : error_reporting(0);<br>
  */
-define('AE_ENVIRONMENT', 'product');
+define('AE_ENVIRONMENT', $env);
 
 define('DS', DIRECTORY_SEPARATOR);
 define('PS', PATH_SEPARATOR);
