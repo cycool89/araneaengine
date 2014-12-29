@@ -5,6 +5,7 @@ function autoload($c) {
   $class = end($parts);
   $vendor = array_shift($parts);
   $path = '';
+  $type = '';
   if ($vendor == 'aecore') {
     $path .= AE_CORE_DIR;
     switch ($class[0]) {

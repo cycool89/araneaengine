@@ -173,7 +173,7 @@ class Loader {
     $shortName = getClassName($this->parent->getModule());
     $alias = ($alias == '' && is_string($alias)) ? $name : $alias;
     $tpl = $view->createTemplate($shortName . DS . $name . AE_VIEW_EXT, null, null, $view);
-    $view->addTemplate($shortName, $alias, $tpl);
+    $view->addTemplate(get_class($this->parent->getModule()), $alias, $tpl);
     return $tpl;
   }
 

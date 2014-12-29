@@ -22,7 +22,7 @@ class View extends \Smarty {
     $this->setTemplateDir(AE_TEMPLATES);
     //$smarty->setConfigDir('/web/www.example.com/guestbook/configs/');
     //$this->setDefaultTemplateExt(VIEW_EXT);
-    $this->error_reporting = error_reporting();
+    $this->error_reporting = E_ALL & ~E_NOTICE;
   }
 
   public function addTemplate($moduleName, $templateName, \Smarty_Internal_Template &$tpl) {
@@ -114,7 +114,8 @@ class View extends \Smarty {
       }
       $modrewrite = (AE_MOD_REWRITE) ? '' : 'index.php/';
       $e->$attr = AE_BASE_PATH . $modrewrite . implode('/', $hrefPieces);
-      if ($e->$attr[strlen($e->$attr) - 1] !== '/' && strpos($e->$attr, '?') === false) {
+      if (strpos($e->$attr, '?') === false) {
+        $e->$attr = rtrim($e->$attr,'/');
         $e->$attr .= '/';
       }
     }
