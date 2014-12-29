@@ -19,7 +19,7 @@ define('_DOMAIN', 'araneaengine.hu');
 define('_EMAIL', 'info@araneaengine.hu');
 
 $env = 'final';
-if (strpos($_SERVER['HTTP_HOST'], 'localhost') === false) {
+if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false) {
   $env = 'development';
 } else {
   $env = 'product';
