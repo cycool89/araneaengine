@@ -26,11 +26,7 @@ class View extends \Smarty {
   }
 
   public function addTemplate($moduleName, $templateName, \Smarty_Internal_Template &$tpl) {
-    if (!isset($this->templates[$moduleName])) {
-      $this->templates[$moduleName][$templateName] = $tpl;
-    } else {
-      $this->templates[$moduleName][$templateName] = $tpl;
-    }
+    $this->templates[$moduleName][$templateName] = $tpl;
   }
 
   /**
@@ -53,7 +49,7 @@ class View extends \Smarty {
   public function createTemplate($template, $cache_id = null, $compile_id = null, $parent = null, $do_clone = true) {
     $moduleName = explode(DS, $template);
     $file = array_pop($moduleName);
-    $this->incDir = AE_BASE_PATH . basename(AE_TEMPLATES) . DS . implode('/',$moduleName) . DS;
+    $this->incDir = AE_BASE_PATH . basename(AE_TEMPLATES) . DS . implode('/', $moduleName) . DS;
     if (file_exists($this->getTemplateDir(0) . $template)) {
       $dom_object = file_get_html($this->getTemplateDir(0) . $template);
     } else {
