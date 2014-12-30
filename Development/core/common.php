@@ -34,7 +34,7 @@ function req_dir($pathname, $file_ext = 'all', $one = false) {
  */
 function mkdir_r($dir, $mode = 0775) {
   $dir = str_replace(AE_BASE_DIR, '', $dir);
-  if (trim($dir, DS) !== "" || is_dir($dir)) {
+  if (trim($dir, DS) !== "" && !is_dir($dir) && !file_exists($dir)) {
     mkdir($dir, $mode, true);
     chmod($dir, $mode);
   }
