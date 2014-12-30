@@ -57,24 +57,24 @@ abstract class AFormController extends AController {
    * 
    * @param string $name - Mező neve
    * @param string $value - Mező alapértelmezett értéke
-   * @param string $modifyValue - Mező értéke POST után
+   * @param string $remember - Megőrizze-e POST után a tartalmát
    */
-  public function textField($name = false, $value = false, $modifyValue = null) {
+  public function textField($name, $value = '', $remember = false) {
     $this->view->assign($name . '_name', get_class($this) . '[' . $name . ']');
     $this->view->assign($name . '_id', $name);
-    if (!is_null($modifyValue)) {
-      $this->view->assign($name . '_value', $modifyValue);
+    if ($remember && isset($this->values[$name])) {
+      $this->view->assign($name . '_value', $this->values[$name]);
     } else {
       $this->view->assign($name . '_value', $value);
     }
   }
 
-  public function checkField($name = false, $value = false, $modifyValue = null) {
+  public function checkField($name, $value = false, $remember = false) {
     $this->view->assign($name . '_name', get_class($this) . '[' . $name . ']');
     $this->view->assign($name . '_id', $name);
-    if (!is_null($modifyValue)) {
-      $checked = $modifyValue ? 'checked="checked"' : '';
-      $this->view->assign($name . '_value', $modifyValue);
+    if ($remember && isset($this->values[$name])) {
+      $checked = $this->values[$name] ? 'checked="checked"' : '';
+      $this->view->assign($name . '_value', $this->values[$name]);
     } else {
       $checked = $value ? 'checked="checked"' : '';
       $this->view->assign($name . '_value', $value);
@@ -82,7 +82,7 @@ abstract class AFormController extends AController {
     $this->view->assign($name . '_checked', $checked);
   }
 
-  public function selectField($name = false, $values = false, $selectedValueId = null) {
+  public function selectField($name, $values = array(), $selectedValueId = null) {
     $this->view->assign($name . '_name', get_class($this) . '[' . $name . ']');
     $this->view->assign($name . '_id', $name);
     $this->view->assign($name . '_values', $values);
