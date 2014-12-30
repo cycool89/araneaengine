@@ -24,6 +24,7 @@ class AraneaEngine extends ASingleton {
   private $application = null;
 
   protected function __construct() {
+    ob_start();
     $this->startTime = microtime(true);
     $this->startMem = getMemoryUsage(true, false);
     require_once AE_BASE_DIR . 'config' . DS . 'dbconfig' . AE_EXT;
