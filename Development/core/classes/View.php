@@ -17,6 +17,9 @@ class View extends \Smarty {
 
   public function __construct() {
     parent::__construct();
+    mkdir_r('_smarty', 0775);
+    mkdir_r('_smarty' . DS . 'templates_c' . DS, 0775);
+    mkdir_r('_smarty' . DS . 'cache' . DS, 0775);
     $this->setCompileDir(AE_BASE_DIR . '_smarty' . DS . 'templates_c' . DS);
     $this->setCacheDir(AE_BASE_DIR . '_smarty' . DS . 'cache' . DS);
     $this->setTemplateDir(AE_TEMPLATES);
@@ -115,7 +118,7 @@ class View extends \Smarty {
       $modrewrite = (AE_MOD_REWRITE) ? '' : 'index.php/';
       $e->$attr = AE_BASE_PATH . $modrewrite . implode('/', $hrefPieces);
       if (strpos($e->$attr, '?') === false) {
-        $e->$attr = rtrim($e->$attr,'/');
+        $e->$attr = rtrim($e->$attr, '/');
         $e->$attr .= '/';
       }
     }
@@ -129,14 +132,14 @@ class View extends \Smarty {
 
   private function checkLink($e) {
     $this->remove_noise("'(<\{(.*?)\}>)'s", $e, 'href');
-    if (strpos($e->href,':') === false) {
+    if (strpos($e->href, ':') === false) {
       $e->href = $this->incDir . trim($e->href, '/');
     }
     $e->href = $this->restore_noise($e->href);
   }
 
   private function checkScript($e) {
-    if (strpos($e->src,':') === false) {
+    if (strpos($e->src, ':') === false) {
       $e->src = $this->incDir . trim($e->src, '/');
     }
   }

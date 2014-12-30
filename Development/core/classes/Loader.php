@@ -264,7 +264,6 @@ class Loader {
     $dir = AE_BASE_DIR . $appName . DS;
     $file = $dir . $appName . AE_EXT;
     if (!file_exists($file) && $create_on_failure) {
-      mkdir_r($dir);
       $appFile = file_get_contents(AE_CORE_DIR . 'DefaultFiles' . DS . 'DefaultApplication' . AE_EXT);
       $appFile = str_replace("{{appName}}", $appName, $appFile);
       file_force_contents($file, $appFile);
@@ -272,7 +271,6 @@ class Loader {
       mkdir_r($dir . 'Controllers');
       mkdir_r($dir . 'Models');
       if (!is_dir(AE_TEMPLATES . $appName)) {
-        mkdir_r(AE_TEMPLATES . $appName);
         file_force_contents(AE_TEMPLATES . $appName . DS . 'index' . AE_VIEW_EXT, "Hello World!");
       }
     } elseif (!file_exists($file)) {
