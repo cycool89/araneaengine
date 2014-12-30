@@ -88,8 +88,8 @@ class Loader {
       if (empty($errors)) {
         $this->parent->$name->storeData();
       }
-      AE()->getApplication()->getView()->assign('values', $this->parent->$name->getValues());
-      AE()->getApplication()->getView()->assign('errors', $this->parent->$name->getErrors());
+      $this->parent->$name->getView()->assign('values', $this->parent->$name->getValues());
+      $this->parent->$name->getView()->assign('errors', $this->parent->$name->getErrors());
     }
     if (!isset(self::$prixifiedClasses[$fullName])) {
       self::$prixifiedClasses[$fullName] = new Proxy(self::$classes[$fullName]);
@@ -169,7 +169,7 @@ class Loader {
    * @return \Smarty_Internal_Template
    */
   public function &view($name, $alias = '') {
-    $view = AE()->getApplication()->getView();
+    $view = $this->parent->getView();
     $shortName = getClassName($this->parent->getModule());
     $alias = ($alias == '' && is_string($alias)) ? $name : $alias;
     $tpl = $view->createTemplate($shortName . DS . $name . AE_VIEW_EXT, null, null, $view);
@@ -314,7 +314,7 @@ class Loader {
       self::$classes[$fullName] = new $fullName();
       if (!(self::$classes[$fullName] instanceof \aecore\aModel)) {
         //View hozzáadása
-        $view = AE()->getApplication()->getView();
+        $view = new View();//AE()->getApplication()->getView();
         self::$classes[$fullName]->setView($view);
         //Module hozzáadása
         $module = $this->parent->getModule();

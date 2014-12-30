@@ -9,7 +9,7 @@ namespace aecore;
  */
 class View extends \Smarty {
 
-  private $templates = array();
+  private static $templates = array();
   private $incDir = '';
   private $noise = '';
   private $size;
@@ -26,7 +26,7 @@ class View extends \Smarty {
   }
 
   public function addTemplate($moduleName, $templateName, \Smarty_Internal_Template &$tpl) {
-    $this->templates[$moduleName][$templateName] = $tpl;
+    self::$templates[$moduleName][$templateName] = $tpl;
   }
 
   /**
@@ -37,10 +37,10 @@ class View extends \Smarty {
   public function getTemplates($moduleName = null) {
     $ret = null;
     if (is_null($moduleName)) {
-      $ret = $this->templates;
+      $ret = self::$templates;
     } else {
-      if (isset($this->templates[$moduleName])) {
-        $ret = $this->templates[$moduleName];
+      if (isset(self::$templates[$moduleName])) {
+        $ret = self::$templates[$moduleName];
       }
     }
     return $ret;
@@ -129,12 +129,16 @@ class View extends \Smarty {
 
   private function checkLink($e) {
     $this->remove_noise("'(<\{(.*?)\}>)'s", $e, 'href');
-    $e->href = $this->incDir . trim($e->href, '/');
+    if (strpos($e->href,':') === false) {
+      $e->href = $this->incDir . trim($e->href, '/');
+    }
     $e->href = $this->restore_noise($e->href);
   }
 
   private function checkScript($e) {
-    $e->src = $this->incDir . trim($e->src, '/');
+    if (strpos($e->src,':') === false) {
+      $e->src = $this->incDir . trim($e->src, '/');
+    }
   }
 
   protected function remove_noise($pattern, $e, $attr, $remove_tag = false) {
