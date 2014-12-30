@@ -34,15 +34,14 @@ function req_dir($pathname, $file_ext = 'all', $one = false) {
  */
 function mkdir_r($dir, $mode = 0775) {
   $dir = str_replace(AE_BASE_DIR, '', $dir);
+  if (trim($dir, DS) !== "" || is_dir($dir)) {
+    mkdir($dir, $mode, true);
+    chmod($dir, $mode);
+  }
   $parts = explode(DS, trim($dir, DS));
   $dir = AE_BASE_DIR . array_shift($parts);
   foreach ($parts as $part) {
-    if (!is_dir($dir .= DS . $part)) {
-      $old = umask(0);
-      mkdir($dir, $mode);
-      umask($old);
-      chmod($dir, $mode);
-    }
+    $dir .= DS . $part;
   }
   return $dir;
 }
@@ -54,11 +53,9 @@ function mkdir_r($dir, $mode = 0775) {
  * @param string $contents
  */
 function file_force_contents($dir, $contents, $mode = 0775) {
-  $parts = explode(DS, trim($dir, DS));
+  $parts = explode(DS, ltrim($dir, DS));
   $file = array_pop($parts);
-
   $dir = mkdir_r(DS . implode(DS, $parts) . DS, $mode);
-
   file_put_contents($dir . DS . $file, $contents);
   chmod($dir . DS . $file, $mode);
 }
@@ -110,7 +107,7 @@ function getMemoryUsage($real_usage = false, $text = false) {
   $mem_usage = memory_get_usage($real_usage);
 
   $ret = ($text) ? bitToText($mem_usage) : $mem_usage;
-  
+
   return $ret;
 }
 
