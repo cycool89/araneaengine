@@ -30,7 +30,8 @@ class AraneaEngine extends ASingleton {
       'KintMaster' => 'Kint.class.php',
       'Inflector' => 'Inflector.php',
       'PHPMailer' => 'class.phpmailer.php',
-      'WideImage' => 'WideImage.php'
+      'WideImage' => 'WideImage.php',
+      'Neon' => 'neon.php'
   );
 
   /** @var aModule */
