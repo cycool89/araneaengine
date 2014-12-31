@@ -1,7 +1,11 @@
 <?php
 namespace aecore;
 /**
- * Description of aClass
+ * Alap osztály
+ * 
+ * Ebből származik minden később örklendő osztály.
+ * 
+ * Tartalmaz egy boot() abstract metódust amit implementálni kell az osztályokban.
  *
  * @author cycool89
  */
@@ -52,5 +56,9 @@ abstract class AClass {
     $this->view = $view;
   }
 
+  /**
+   * Implementálandó a későbbi leszármazottakban.
+   * Javaslat: Inicializációs metódusként használjuk.
+   */
   abstract function boot();
 }

@@ -2,6 +2,16 @@
 
 namespace aecore;
 
+/**
+ * \aecore\URL osztály
+ * 
+ * Feldolgozza az URL PATH_INFO-t
+ * (Némely szerveren ORIG_PATH_INFO)
+ * 
+ * tömbösíti a PATH_INFO -t '/'-ek alapján szétvágva.
+ * 
+ * @author Kigyós János <cycool89@gmail.com>
+ */
 class URL {
 
   private static $URL = array();
@@ -24,6 +34,18 @@ class URL {
     self::$URL = $URL;
   }
 
+  /**
+   * A <var>$string</var> paramétert visszaadja tömbben,
+   * '/' karakterek mentén szétvélasztva.
+   * <var>$string</var> -en végig futtatja a strip_tags 
+   * függvényt.
+   * 
+   * Nem veszi figyelembe, ha több '/' is van egymás mellett.
+   * pl 'x//y/' => array('x' , 'y');
+   * 
+   * @param type $string
+   * @return array
+   */
   static function makeArrayFromURI($string) {
     $URL = trim($string, '/');
     $URL = explode('/', strip_tags($URL));
@@ -34,10 +56,11 @@ class URL {
   /**
    * Visszaadja az URL <var>$num</var>. argumentumát
    * 0-tól kezdve az indexelést
-   * Paraméter nélkül az egész URL-t sorszámozott tömbben
+   * Paraméter nélkül az egész URL-t sorszámozott tömbben.
+   * Nem létező index esetén false értéket.
    * 
    * @param integer $num
-   * @return mixed
+   * @return mixed - tömb, string, false
    */
   static function arg($num = -1) {
     if ($num >= 0) {
@@ -49,7 +72,9 @@ class URL {
 
   /**
    * Összeolvaszt két stringet:
-   *  <var>$path1</var>-et és <var>$path2</var>-t a <var>$separator</var> stringgel
+   *  <var>$path1</var>-et és <var>$path2</var>-t a <var>$separator</var> stringgel.
+   * Ha az összeolvasztási ponton szerepel a <var>$separator</var>, akkor felismeri
+   * és mindenképp csak egy <var>$separator</var> lesz a két string között.
    * 
    * @param string $path1
    * @param string $path2
