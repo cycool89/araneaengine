@@ -39,7 +39,7 @@ class Loader {
    * amiben példűnyosítva lett. Az <var>$inc_dir</var> paraméterben pedig
    * a modul gyökérkönyvtárát.
    * 
-   * @param \core\aClass $parent
+   * @param aClass $parent
    * @param string $inc_dir
    */
   public function __construct(aClass &$parent, $inc_dir) {
@@ -47,6 +47,29 @@ class Loader {
     $this->incDir = $inc_dir;
   }
 
+  /**
+   * PHP varászmetódus
+   * 
+   * Segítségével példányosíthatunk külső osztályokat.
+   * 
+   * A külső osztályt a következő helyre kell tenni:
+   * 
+   * /modulkönyvtár/<var>$name</var>/osztály.php
+   * 
+   * Példa: Alkalmazás modulból kiadva:
+   * $this->load->helper('html');
+   * /Alkalmazás/Helpers/html.php => 'class html {}'
+   * 
+   * Ha az osztály konstruktora paramétert vár akkor soroljuk fel az osztály neve után.
+   * Pl.: $this->load->handler('css',[$param1[,$param2...]]);
+   * 
+   * (Vegyük észre hogy a könyvtár a metódusnév nagykezdőbetűs, többesszámú formája:
+   * $this->load->handler(...) => /Handlers/...
+   * 
+   * @param string $name
+   * @param array $arguments
+   * @return mixed
+   */
   public function &__call($name, $arguments) {
     $className = array_shift($arguments);
     $path = ucfirst(AEstr()->pluralize($name));
@@ -72,12 +95,17 @@ class Loader {
    * 
    * Hozzáad a <var>$parent</var> objektumhoz egy <var>$name</var> mezőt,
    * ami ezután a <var>$parent</var> objektumban $this->$name -ként lesz elérhető.
-   * A <var>$name</var> osztály egy \core\aController vagy \core\aFromController
+   * A <var>$name</var> osztály egy AController vagy AFromController
    * leszármazottja kell legyen és a modul gyökeréhez viszonyítva a 
    * /Controllers/<var>$name</var>.php helyen kell legyen.
    * 
+   * POST adatok esetén, és ha a POST adatok tartalmaznak adatokat
+   * a betöltött AFormController részére, akkor lefuttatja a
+   * checkValues() metódust. Ha ezek után az $errors tömbb üres,
+   * akkor végrehajtja a storeData() metódust.
+   * 
    * @param string $name
-   * @return AController A <var>$name</var> controller
+   * @return AController Egy Proxy osztály ami tartalmazza a <var>$name</var> controller-t
    */
   public function &controller($name) {
     $fullName = $this->load($name, 'Controllers');
@@ -122,7 +150,7 @@ class Loader {
    * ami ezután a <var>$parent</var> objektumban $this->$name -ként lesz elérhető.
    * A <var>$name</var> osztály egy \core\aModule
    * leszármazottja kell legyen és a modul gyökeréhez viszonyítva a 
-   * /Modules/<var>$name</var>/<var>$name</var>.php helyen kell legyen.
+   * /Submodules/<var>$name</var>/<var>$name</var>.php helyen kell legyen.
    * 
    * @param string $name
    * @return AModule A <var>$name</var> almodul
@@ -247,19 +275,42 @@ class Loader {
     return false;
   }
 
+  /**
+   * Visszaadja a Loader-t tartalmazó modul gyökerének helyét.
+   * 
+   * @return string
+   */
   public function getIncDir() {
     return $this->incDir;
   }
 
+  /**
+   * Visszaadja az objektumot amiben a Loader példányosítva lett.
+   * 
+   * @return AClass
+   */
   public function getParent() {
     return $this->parent;
   }
 
-  public function setParent(aClass &$parent) {
+  /**
+   * Beállítja az objektumot amiben példányosítva lett a Loader.
+   * 
+   * @param AClass $parent
+   */
+  public function setParent(AClass &$parent) {
     $this->parent = $parent;
   }
 
-  /** @return aModule */
+  /**
+   * Betölti az <var>$appName</var> alkalmazásmodul-t.
+   * <var>$create_on_failure</var> true esetén létrehozza, az index.php-vel
+   * egy szinten.
+   *  
+   * @param string $appName alkalmazásmodul neve
+   * @param boolean $create_on_failure
+   * @return aModule
+   */
   public static function loadApplication($appName, $create_on_failure = false) {
     $dir = AE_BASE_DIR . $appName . DS;
     $file = $dir . $appName . AE_EXT;
@@ -282,6 +333,19 @@ class Loader {
     return self::$classes[$appName];
   }
 
+  /**
+   * Betölti a <var>$name</var> osztályt.
+   *
+   * Ha nem model, akkor
+   * Hozzáadja egy saját Loader-t, View-t és beállítja a modulját.
+   * 
+   * Lefuttatja az osztály boot() metódusát, ha még nem volt betöltve előzőleg.
+   * 
+   * @param string $name
+   * @param string $path
+   * @param boolean $absolutePath
+   * @return string A betöltött osztály Fully-qualified neve
+   */
   private function load($name, $path, $absolutePath = false) {
     $rModule = new \ReflectionClass($this->parent->getModule());
     $newIncDir = trim(dirname($rModule->getFileName()), DS);

@@ -1,9 +1,13 @@
 <?php
 namespace aecore;
 /**
- * Description of AraneaEngine
+ * AraneaEngine osztály
  * 
- * @author cycool89
+ * A rendszer főosztálya. Később elérhető
+ * \aecore\AE() fv-ként. Lefuttatja az alkalmazásmodul
+ * boot(), index(), render() metódusát ebben a sorrendben.
+ * 
+ * @author Kigyós János <cycool89@gmail.com>
  */
 class AraneaEngine extends ASingleton {
 
@@ -11,6 +15,15 @@ class AraneaEngine extends ASingleton {
   private $startTime = 0;
   private $startMem = 0;
 
+  /**
+   * Rendszer pluginok a core/Plugins könyvtárhoz viszonyítva.
+   * Formátum
+   * 
+   * array ( <b>key</b> => <b>value</b> )
+   * core/Plugins/<b>key</b>/<b>value</b>
+   * 
+   * @var array
+   */
   private $plugins = array(
       'Smarty' => 'Smarty.class.php',
       'SimpleHtmlDom' => 'simple_html_dom.php',
@@ -23,6 +36,14 @@ class AraneaEngine extends ASingleton {
   /** @var aModule */
   private $application = null;
 
+  /**
+   * AraneaEngine konstruktor
+   * 
+   * Elindítja a kimenet buffer-t
+   * Rögzíti az aktuális időt, memória használatot.
+   * Beolvassa a config/config.php és config/dbconfig.php fájlokat.
+   * Inicializálja az URL és Request osztályt
+   */
   protected function __construct() {
     ob_start();
     $this->startTime = microtime(true);
@@ -33,6 +54,14 @@ class AraneaEngine extends ASingleton {
     Request::setMVC();
   }
 
+  /**
+   * Időzóna, alap Pluginek, adatbázis beállítása.
+   * Betölti a config-ban alapértelmezett alkalmazásként megjelölt modult-t
+   * ami a /Alkalmazásnév/ helyen található. Ha nem létezik létrehoz egy alap alkalmazást.
+   * 
+   * Beállíta a nézetet (Smarty), Loader-t.
+   * Lefuttatja az alkalmazás modul boot(), index(), render() metódusát.
+   */
   public function start() {
     date_default_timezone_set(Config::getEntry('Timezone'));
     $this->loadPlugin('Smarty');
@@ -57,7 +86,15 @@ class AraneaEngine extends ASingleton {
     $this->application->render();
   }
 
-  /** @return iDatabase */
+  /**
+   * Visszaadja az aktuális élő adatbázis kapcsolatot.
+   * Használja az IDatabase interface-t.
+   * 
+   * Ha nincs élő kapcsolat (pl. dbconfig-ban AE_USE_DB = false)
+   * , akkor null értéket ad.
+   *  
+   * @return IDatabase
+   *  */
   public function &getDatabase() {
     $ret = null;
     if (AE_USE_DB) {
@@ -71,6 +108,7 @@ class AraneaEngine extends ASingleton {
   }
 
   /**
+   * Visszaadja az alkalmazás modul-t.
    * 
    * @return aModule
    */
@@ -78,10 +116,21 @@ class AraneaEngine extends ASingleton {
     return $this->application;
   }
 
+  /**
+   * Betölt egy rendszerplugin-t.
+   * 
+   * @param string $plugin Az osztály <var>$plugins</var> változójának egy kulcsa.
+   */
   public function loadPlugin($plugin) {
     require_once AE_CORE_DIR . 'Plugins' . DS . $plugin . DS . $this->plugins[$plugin];
   }
   
+  /**
+   * Megadja, hogy a program elindításától a metódus meghívásáig mennyi idő telt el.
+   * pl.: 0.0515
+   * 
+   * @return double
+   */
   public function elapsedTime() {
     $endTime = microtime(true);
     $eT = $endTime - $this->startTime;
@@ -89,6 +138,13 @@ class AraneaEngine extends ASingleton {
     return round($eT,4);
   }
   
+  /**
+   * Megadja, hogy a program elindításától a metódus meghívásáig
+   * mennyi memóriát használtunk el szövegesen.
+   * pl.: 3.75 Mb
+   * 
+   * @return double
+   */
   public function usedMemory() {
     $endMem = getMemoryUsage(true, false);
     $uM = $endMem - $this->startMem;

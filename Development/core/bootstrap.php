@@ -20,17 +20,22 @@ switch (AE_ENVIRONMENT) {
   case 'development':
     ini_set('display_errors', 1);
     error_reporting(E_ALL);
-    define('AE_DEBUG_MODE',true);
+    define('AE_DEBUG_MODE', true);
     break;
   case 'product':
     ini_set('display_errors', 1);
     error_reporting(E_ALL & ~E_NOTICE);
-    define('AE_DEBUG_MODE',true);
+    define('AE_DEBUG_MODE', true);
     break;
   case 'final':
     ini_set('display_errors', 0);
     error_reporting(0);
-    define('AE_DEBUG_MODE',false);
+    define('AE_DEBUG_MODE', false);
+    break;
+  default:
+    ini_set('display_errors', 1);
+    error_reporting(E_ALL);
+    define('AE_DEBUG_MODE', true);
     break;
 }
 
