@@ -11,7 +11,7 @@ namespace aecore;
  */
 class AraneaEngine extends ASingleton {
 
-  const VERSION = "0.1.0";
+  const VERSION = "0.1.1";
   private $startTime = 0;
   private $startMem = 0;
 
