@@ -4,8 +4,8 @@
   ini_set('session.gc_probability', 1);
   ini_set('session.gc_divisor', 1); */
 
-error_reporting(E_ALL);
-ini_set('error_reporting', E_ALL);
+/*error_reporting(E_ALL);
+ini_set('error_reporting', E_ALL);*/
 ini_set('display_errors', 1);
 
 session_start();
@@ -45,5 +45,4 @@ define('AE_CORE_DIR', AE_BASE_DIR . 'core' . DS);
 
 require_once AE_CORE_DIR . 'bootstrap.php';
 require_once AE_CORE_DIR . 'AraneaEngine.php';
-
 \aecore\AE()->start();

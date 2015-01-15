@@ -35,16 +35,17 @@ class View extends \Smarty {
   /**
    * 
    * @param string $moduleName
-   * @return mixed
+   * @param boolean $erase
+   * @return array
    */
-  public function getTemplates($moduleName = null) {
-    $ret = null;
+  public function getTemplates($moduleName = null, $erase = false) {
+    $ret = array();
     if (is_null($moduleName)) {
       $ret = self::$templates;
-    } else {
-      if (isset(self::$templates[$moduleName])) {
+      if ($erase) { self::$templates = array(); }
+    } elseif (isset(self::$templates[$moduleName])) {
         $ret = self::$templates[$moduleName];
-      }
+        if ($erase) { unset(self::$templates[$moduleName]); }
     }
     return $ret;
   }
