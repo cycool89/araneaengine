@@ -953,6 +953,16 @@ class simple_html_dom_node
 						'width' => $width);
 		return $result;
 	}
+    
+    public function removeNode($selector)
+    {
+        foreach ($this->find($selector) as $node)
+        {
+            $node->outertext = '';
+        }
+
+        $this->load($this->save());        
+    }
 
 	// camel naming conventions
 	function getAllAttributes() {return $this->attr;}
@@ -1121,6 +1131,14 @@ class simple_html_dom
 		if ($filepath!=='') file_put_contents($filepath, $ret, LOCK_EX);
 		return $ret;
 	}
+    
+    function display() {
+      echo $this->save();
+    }
+    
+    function fetch() {
+      return $this->save();
+    }
 
 	// find dom node by css selector
 	// Paperg - allow us to specify that we want case insensitive testing of the value of the selector.
@@ -1704,6 +1722,7 @@ class simple_html_dom
 			}
 		}
 	}
+    
 	function __toString()
 	{
 		return $this->root->innertext();

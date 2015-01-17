@@ -11,7 +11,7 @@ namespace aecore;
  */
 class AraneaEngine extends ASingleton {
 
-  const VERSION = "0.1.1";
+  const VERSION = "0.2.9";
   private $startTime = 0;
   private $startMem = 0;
 
@@ -77,6 +77,7 @@ class AraneaEngine extends ASingleton {
     $view->clearAllCache(3600);
     $view->clearCompiledTemplate(null,null,3600);
     $view->assign('AE_VERSION',  self::VERSION);
+    $view->assignGlobal('AE',$this);
     $this->application->setView($view);
     $this->application->setModule($this->application);
     $loader = new Loader($this->application, AE_BASE_DIR . Config::getEntry('Application') . DS);

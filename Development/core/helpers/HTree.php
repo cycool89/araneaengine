@@ -193,6 +193,10 @@ class HTree
                 break;
         }
     }
+    
+    public function getRootId() {
+      return $this->root_id;
+    }
 
     function updateRight($itemIDs, $muvelet, $count = 1)
     {
