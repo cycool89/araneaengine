@@ -40,29 +40,23 @@ class View_Internal_Template {
   }
 
   private function &_globalizeHTML(\simple_html_dom $dom) {
+    foreach ($dom->find("*[src]") as $e) {
+      if (!isset($e->araneaengine)) {
+        $this->checkSrc($e);
+        $e->araneaengine = "processed";
+      }
+    }
+
+    foreach ($dom->find("*[href]") as $e) {
+      if (!isset($e->araneaengine)) {
+        $this->checkHref($e);
+        $e->araneaengine = "processed";
+      }
+    }
+
     foreach ($dom->find("form[!araneaengine]") as $e) {
-        $this->checkForm($e);
-        $e->araneaengine = "processed";
-    }
-
-    foreach ($dom->find("a[!araneaengine]") as $e) {
-        $this->checkAnchor($e);
-        $e->araneaengine = "processed";
-    }
-
-    foreach ($dom->find("img[!araneaengine]") as $e) {
-        $this->checkImage($e);
-        $e->araneaengine = "processed";
-    }
-
-    foreach ($dom->find("link[!araneaengine]") as $e) {
-        $this->checkLink($e);
-        $e->araneaengine = "processed";
-    }
-
-    foreach ($dom->find("script[!araneaengine]") as $e) {
-        $this->checkScript($e);
-        $e->araneaengine = "processed";
+      $this->checkForm($e);
+      $e->araneaengine = "processed";
     }
 
     if ($dom->find('html') !== array()) {
@@ -71,6 +65,18 @@ class View_Internal_Template {
       }
     }
     return $dom;
+  }
+
+  private function checkHref($e) {
+    switch ($e->tag){
+      case 'a':
+        $this->checkAnchor($e, 'href');
+        break;
+      case 'link':
+      default:
+        $this->checkLink($e);
+        break;
+    }
   }
 
   private function checkAnchor($e, $attr = 'href') {
@@ -118,7 +124,7 @@ class View_Internal_Template {
     $e->$attr = $this->restore_noise($e->$attr);
   }
 
-  private function checkImage($e) {
+  private function checkSrc($e) {
     if (strpos($e->src, ':') === false && isset($e->src)) {
       $e->src = $this->incDir . trim($e->src, '/');
     }
@@ -132,10 +138,8 @@ class View_Internal_Template {
     $e->href = $this->restore_noise($e->href);
   }
 
-  private function checkScript($e) {
-    if (strpos($e->src, ':') === false && isset($e->src)) {
-      $e->src = $this->incDir . trim($e->src, '/');
-    }
+  public function checkForm($e) {
+    $this->checkAnchor($e, 'action');
   }
 
   protected function remove_noise($pattern, $e, $attr, $remove_tag = false) {
@@ -185,10 +189,5 @@ class View_Internal_Template {
     }
   }
 
-  public function checkForm($e) {
-//$this->remove_noise("'(<\{(.*?)\}>)'s",$e,'action');
-    $this->checkAnchor($e, 'action');
-//$e->action = $this->restore_noise($e->action);
-  }
 
 }
