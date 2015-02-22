@@ -113,7 +113,7 @@ abstract class AModel extends AClass {
    * Visszatérési érték a sikeresen törölt sorok száma.
    * 
    * @param mixed $array
-   * @return bool
+   * @return integer
    */
   final function delItems(array $array) {
     for ($i = 0; $i < count($array); $i++) {

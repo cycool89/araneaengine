@@ -119,7 +119,9 @@ class View_Internal_Template {
   }
 
   private function checkImage($e) {
-    
+    if (strpos($e->src, ':') === false && isset($e->src)) {
+      $e->src = $this->incDir . trim($e->src, '/');
+    }
   }
 
   private function checkLink($e) {
