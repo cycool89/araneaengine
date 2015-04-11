@@ -363,6 +363,7 @@ class Loader {
       }
     } else {
       $path = trim($path, DS);
+      $newIncDir = $path;
       $namespace = strtolower(basename(dirname($path)));
       $namespace = "\\application\\" . $namespace . "\\" . strtolower($name) . '\\';
       $fullName = $namespace . $name;
