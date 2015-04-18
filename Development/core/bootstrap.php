@@ -71,7 +71,9 @@ IndexIgnore *
 $mod_rewrite = false;
 if (function_exists('apache_get_modules')) {
   $modules = apache_get_modules();
-  $mod_rewrite = (in_array('mod_rewrite', $modules) && getenv('HTTP_MOD_REWRITE') == 'On');
+  $mod_rewrite = (in_array('mod_rewrite', $modules) 
+          && (getenv('HTTP_MOD_REWRITE') == 'On' 
+              || getenv('HTTP_MOD_REWRITE') == ''));
 } else {
   $mod_rewrite = (getenv('HTTP_MOD_REWRITE') == 'On' ? true : false );
 }

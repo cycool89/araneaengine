@@ -27,15 +27,12 @@ class Request {
 
     $url = (empty($array) || !is_array($array)) ? URL::arg() : $array;
 
-    $reqStartIndex = 0;
-    if (Config::getEntry('Multilanguage')) {
-      $reqStartIndex = 1;
-    }
+    $reqStartIndex = (Config::getEntry('Multilanguage')) ? 1 : 0;
+    
     if (isset($url[$reqStartIndex]) && strpos($url[$reqStartIndex], 'Module:') === 0) {
       $url[$reqStartIndex] = str_replace('Module:', '', $url[$reqStartIndex]);
     }
 
-    //$langs = array_keys(Config::getEntry('Languages'));
     if (Config::getEntry('Multilanguage')) {
       $foundLanguage = false;
       $i = 0;
@@ -70,46 +67,12 @@ class Request {
       $url = array_values($url); //Tömb újraszámozása
     }
 
-    /* if (Config::getEntry('Multilanguage')) {
-      if (!Session::get('lang')) {
-      if (isset($url[0]) && in_array($url[0], $langs)) {
-      Session::set('lang', config::getLanguage($url[0]));
-      array_shift($url);
-      } else {
-      Session::set('lang', config::getDefaultLanguage());
-      URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . self::getQueryString());
-      }
-      } elseif (isset($url[0])) {
-      if (Session::get('lang', 'code') !== $url[0]) {
-      if (in_array($url[0], $langs)) {
-      Session::set('lang', config::getLanguage($url[0]));
-      array_shift($url);
-      } else {
-      URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . self::getQueryString());
-      }
-      } else {
-      array_shift($url);
-      }
-      } elseif (!isset($url[0])) {
-      URL::redirect('/' . Session::get('lang', 'code') . URL::getPathInfo() . self::getQueryString());
-      }
-      } elseif (Session::get('lang')) {
-      Session::del('lang');
-      } */
-
-
-
-    /* if (isset($url[0]) && $url[0] === self::$key_word) {
-      self::$appReq = true;
-      array_shift($url);
-      } */
-
     $def_req['Module'] = Config::getEntry('Module');
     $def_req['Controller'] = Config::getEntry('Controller');
     $def_req['Method'] = Config::getEntry('Method');
     $def_req['Params'] = Config::getEntry('Params');
 
-    if (!$url) {
+    if (empty($url)) {
       self::$Module = $def_req['Module'];
       self::$Controller = $def_req['Controller'];
       self::$Method = $def_req['Method'];
