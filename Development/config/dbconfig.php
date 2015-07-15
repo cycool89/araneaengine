@@ -5,24 +5,31 @@
 define('AE_USE_DB', false);
 
 if ($_SERVER['HTTP_HOST'] == 'localhost') {
+  $driv = 'mysqli';
   $host = 'localhost';
   $user = '';
   $pass = '';
   $name = '';
   $pref = 'pre_'; //nincs kész
 } elseif (strpos($_SERVER['HTTP_HOST'], _DOMAIN) !== false) {
-  $host = '';
+  $driv = 'mysqli';
+  $host = 'localhost';
   $user = '';
   $pass = '';
   $name = '';
-  $pref = ''; //nincs kész
+  $pref = 'pre_'; //nincs kész
 } else {
-  $host = '';
+  $driv = 'mysqli';
+  $host = 'localhost';
   $user = '';
   $pass = '';
   $name = '';
-  $pref = ''; //nincs kész
+  $pref = 'pre_'; //nincs kész
 }
+/**
+ * Adatbázis driver.
+ */
+define('AE_DBDRIV', $driv);
 /**
  * Adatbázis host név.
  */
