@@ -1,5 +1,7 @@
 <?php
+
 namespace aecore;
+
 /**
  * AraneaEngine osztály
  * 
@@ -11,7 +13,8 @@ namespace aecore;
  */
 class AraneaEngine extends ASingleton {
 
-  const VERSION = "0.2.9";
+  const VERSION = "0.4.0";
+
   private $startTime = 0;
   private $startMem = 0;
 
@@ -25,13 +28,13 @@ class AraneaEngine extends ASingleton {
    * @var array
    */
   private $plugins = array(
-      'Smarty' => 'Smarty.class.php',
-      'SimpleHtmlDom' => 'simple_html_dom.php',
-      'KintMaster' => 'Kint.class.php',
-      'Inflector' => 'Inflector.php',
-      'PHPMailer' => 'class.phpmailer.php',
-      'WideImage' => 'WideImage.php',
-      'Neon' => 'neon.php'
+    'Smarty' => 'Smarty.class.php',
+    'SimpleHtmlDom' => 'simple_html_dom.php',
+    'KintMaster' => 'Kint.class.php',
+    'Inflector' => 'Inflector.php',
+    'PHPMailer' => 'class.phpmailer.php',
+    'WideImage' => 'WideImage.php',
+    'Neon' => 'neon.php'
   );
 
   /** @var aModule */
@@ -75,9 +78,9 @@ class AraneaEngine extends ASingleton {
     $this->application = Loader::loadApplication(Config::getEntry('Application'), true);
     $view = new View();
     $view->clearAllCache(3600);
-    $view->clearCompiledTemplate(null,null,3600);
-    $view->assign('AE_VERSION',  self::VERSION);
-    $view->assignGlobal('AE',$this);
+    $view->clearCompiledTemplate(null, null, 3600);
+    $view->assign('AE_VERSION', self::VERSION);
+    $view->assignGlobal('AE', $this);
     $this->application->setView($view);
     $this->application->setModule($this->application);
     $loader = new Loader($this->application, AE_BASE_DIR . Config::getEntry('Application') . DS);
@@ -95,14 +98,24 @@ class AraneaEngine extends ASingleton {
    * Ha nincs élő kapcsolat (pl. dbconfig-ban AE_USE_DB = false)
    * , akkor null értéket ad.
    *  
-   * @return IDatabase
+   * return IDatabase
+   * @return \aecore\DoctrineDatabase
    *  */
   public function &getDatabase() {
     $ret = null;
     if (AE_USE_DB) {
       switch (Config::getEntry('DatabaseEngine')) {
-        case 'mysqli':
+        case 'ae_mysqli':
           $ret = MysqliDatabase::getInstance();
+          break;
+        case 'ae_PDO':
+          $ret = PDODatabase::getInstance();
+          $ret->setDriver(AE_DBDRIV);
+          $ret->setDbprefix(AE_DBPREFIX);
+          break;
+        case 'ae_Doctrine':
+          $ret = DoctrineDatabase::getInstance();
+          $ret->setDriver(AE_DBDRIV);
           break;
       }
     }
@@ -126,7 +139,7 @@ class AraneaEngine extends ASingleton {
   public function loadPlugin($plugin) {
     require_once AE_CORE_DIR . 'Plugins' . DS . $plugin . DS . $this->plugins[$plugin];
   }
-  
+
   /**
    * Megadja, hogy a program elindításától a metódus meghívásáig mennyi idő telt el.
    * pl.: 0.0515
@@ -136,10 +149,10 @@ class AraneaEngine extends ASingleton {
   public function elapsedTime() {
     $endTime = microtime(true);
     $eT = $endTime - $this->startTime;
-    
-    return round($eT,4);
+
+    return round($eT, 4);
   }
-  
+
   /**
    * Megadja, hogy a program elindításától a metódus meghívásáig
    * mennyi memóriát használtunk el szövegesen.
@@ -150,7 +163,7 @@ class AraneaEngine extends ASingleton {
   public function usedMemory() {
     $endMem = getMemoryUsage(true, false);
     $uM = $endMem - $this->startMem;
-    
+
     return bitToText($uM);
   }
 

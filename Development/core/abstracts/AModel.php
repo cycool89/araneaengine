@@ -11,25 +11,51 @@ abstract class AModel extends AClass {
 
   protected $pairedValues = array();
 
-  /** @var iDatabase */
+  /** @var \Doctrine\DBAL\Connection */
   protected $db = null;
+
+  /** @var \Doctrine\DBAL\Query\QueryBuilder */
+  protected $qb = null;
+
+  /** @var \Doctrine\DBAL\Schema\AbstractSchemaManager */
+  protected $sm = null;
+
+  /** @var \Doctrine\DBAL\Schema\Table */
+  protected $tableObj = null;
   protected $table = '';
   protected $prefix = '';
   protected $fields = array();  //Táblában levő mezők
   protected $id_field = '';
 
   function __construct() {
-    //parent::__construct();
-    $this->db = AE()->getDatabase();
+    $this->db = AE()->getDatabase()->getConnection();
+    $this->qb = $this->db->createQueryBuilder();
+    $this->sm = $this->db->getSchemaManager();
+
     if ($this->table == '' || $this->prefix == '') {
       $c = new \ReflectionClass($this);
       $file = AE_BASE_PATH . str_replace(AE_BASE_DIR, '', $c->getFileName());
       Log::write("Nincs definiálva \$table vagy \$prefix a modelben!\n\t\t\t" . $file, true, true);
     }
-    $sql = sprintf('CREATE TABLE IF NOT EXISTS %s ('
-            . '%sid INT(11) AUTO_INCREMENT PRIMARY KEY NOT NULL) '
-            . 'CHARACTER SET utf8 COLLATE utf8_general_ci ENGINE MYISAM', $this->table, $this->prefix);
-    $this->db->execute($sql);
+    $this->table = AE_DBPREFIX . $this->table;
+
+    if (!$this->sm->tablesExist(array($this->table))) {
+      $schema = $this->sm->createSchema();
+      $myTable = $schema->createTable($this->table);
+      $myTable->addColumn($this->prefix . "id", "integer", array(
+        "unsigned" => true,
+        "autoincrement" => true,
+        "customSchemaOptions" => array(
+          'charset' => 'utf8',
+          'collate' => 'utf8_general_ci'
+        )
+              )
+      );
+      $myTable->setPrimaryKey(array($this->prefix . "id"));
+
+      $array = $schema->toSql($this->db->getDatabasePlatform());
+      $this->db->executeQuery(array_pop($array));
+    }
 
     $this->_getFields();
   }
@@ -37,12 +63,12 @@ abstract class AModel extends AClass {
   abstract protected function install();
 
   final public function getFields() {
+    $this->_getFields();
     $ret = new \stdClass;
     foreach ($this->fields as $key => $value) {
       $ret->$key = new \stdClass();
-      $ret->$key->name = $value['Field'];
-      $ret->$key->type = $value['Type'];
-      $ret->$key->comment = $value['Comment'];
+      $ret->$key->name = $key;
+      $ret->$key->type = $value->getType()->getName();
     }
     return $ret;
   }
@@ -55,11 +81,9 @@ abstract class AModel extends AClass {
    * 
    */
   protected function _getFields($req = false) {
-    $this->fields = $this->db->getKeyedArray(sprintf('SHOW FULL COLUMNS FROM %s', $this->table), 'Field');
-    $res = $this->db->query(sprintf('SHOW FULL COLUMNS FROM %s WHERE Extra = "auto_increment"', $this->table));
-    $row = $res->fetch_assoc();
-
-    $this->id_field = $row['Field'];
+    $this->tableObj = $this->sm->createSchema()->getTable($this->table);
+    $this->fields = $this->tableObj->getColumns();
+    $this->id_field = $this->prefix . 'id';
     if (count($this->fields) <= 1) {
       $this->install();
       if (!$req) {
@@ -86,16 +110,45 @@ abstract class AModel extends AClass {
     if (isset($this->fields[$this->prefix . $toField]) && isset($this->fields[$this->prefix . $fromField])) {
       $item = $this->getItem($itemId);
       $surl = AEstr()->urlize($item[$this->prefix . $fromField]);
-      $darab = $this->db->getOne(
-              $this->db->execute("SELECT count({$this->id_field}) as db FROM {$this->table} WHERE ({$this->prefix}$toField LIKE '$surl' OR {$this->prefix}$toField LIKE '{$surl}-[0-9]' OR {$this->prefix}$toField LIKE '{$surl}-[0-9][0-9]') AND {$this->id_field} <> {$itemId}")
-      );
+
+      $or = $this->qb->expr()->orX();
+      $or->add($this->qb->expr()->like($this->prefix . $toField, $this->qb->createNamedParameter($surl, \PDO::PARAM_STR)));
+      $or->add($this->qb->expr()->like($this->prefix . $toField, $this->qb->createNamedParameter($surl . '-[0-9]', \PDO::PARAM_STR)));
+      $or->add($this->qb->expr()->like($this->prefix . $toField, $this->qb->createNamedParameter($surl . '-[0-9][0-9]', \PDO::PARAM_STR)));
+
+      $not = $this->qb->expr()->neq($this->id_field, $this->qb->createNamedParameter($itemId));
+
+      $felt = $this->qb->expr()->andX();
+      $felt->add($or);
+      $felt->add($not);
+
+      $this->qb->select("count({$this->id_field})")
+              ->from($this->table)
+              ->where($felt);
+
+      $darab = $this->qb->getOne($this->qb->execute());
+
+      /* $darab = $this->qb->getOne(
+        $this->db->executeQuery("SELECT count({$this->id_field}) as db "
+        . "FROM {$this->table} "
+        . "WHERE ({$this->prefix}$toField LIKE '$surl' "
+        . "OR {$this->prefix}$toField LIKE '{$surl}-[0-9]' "
+        . "OR {$this->prefix}$toField LIKE '{$surl}-[0-9][0-9]') "
+        . "AND {$this->id_field} <> {$itemId}")
+        ); */
 
       if ($darab > 0) {
         $surl .= '-' . $itemId;
       }
       $this->pair($toField, $surl);
-      $this->db->addWhere($this->id_field, $itemId);
-      $this->db->update($this->table, $this->pairedValues);
+
+      $felt = $this->qb->expr()->eq($this->id_field, $this->qb->createNamedParameter($itemId));
+
+      $this->qb->update($this->table)
+              ->set($this->prefix . $toField, $this->qb->createNamedParameter($surl, \PDO::PARAM_STR))
+              ->where($felt)
+              ->execute();
+
       $this->pairedValues = array();
       return $surl;
     }
@@ -110,19 +163,15 @@ abstract class AModel extends AClass {
 
   /**
    * Törli az <var>$array</var> tömbben beadott id-jű sorokat.
-   * Visszatérési érték a sikeresen törölt sorok száma.
    * 
    * @param mixed $array
-   * @return integer
    */
   final function delItems(array $array) {
-    for ($i = 0; $i < count($array); $i++) {
-      $this->db->addWhere($this->id_field, $array[$i]);
-      if (!$this->db->delete($this->table)) {
-        break;
-      }
-    }
-    return $i + 1;
+    $felt = $this->qb->expr()->in($this->id_field, array_map('intval', $array));
+
+    $this->qb->delete($this->table)
+            ->where($felt)
+            -execute();
   }
 
   /**
@@ -131,7 +180,11 @@ abstract class AModel extends AClass {
    * @return array
    */
   final function getItems() {
-    return $this->db->getArray($this->db->select('*', $this->table));
+    return $this->qb->getArray(
+                    $this->qb->select('*')
+                            ->from($this->table)
+                            ->execute()
+    );
   }
 
   /**
@@ -140,8 +193,11 @@ abstract class AModel extends AClass {
    * @return array
    */
   final function getItem($id) {
-    $this->db->addWhere($this->id_field, $id);
-    return $this->db->getRow($this->db->select('*', $this->table));
+    $felt = $this->qb->expr()->eq($this->id_field, $this->qb->createNamedParameter($id));
+    $this->qb->select('*')
+            ->from($this->table)
+            ->where($felt);
+    return $this->qb->getRow($this->qb->execute());
   }
 
   /**
@@ -151,17 +207,25 @@ abstract class AModel extends AClass {
    * @return integer
    */
   final function delItem($id) {
-    $this->db->addWhere($this->id_field, $id);
-    return $this->db->delete($this->table);
+    $felt = $this->qb->expr()->eq($this->id_field, $this->qb->createNamedParameter($id));
+    return $this->qb->delete($this->table)->where($felt)->execute();
   }
 
   /**
    * Hozzáad egy sort a táblához, a pair() előkészítő fv-ben megadott adatokkal.
    * 
-   * @return bool
+   * @return integer Létrehozott elem ID-je
    */
   final function addItem() {
-    $id = $this->db->insert($this->table, $this->pairedValues);
+    $this->qb->insert($this->table)/* ->values($this->pairedValues) */;
+    foreach ($this->pairedValues as $field => $datas) {
+      $this->qb->set($field, $datas['param']);
+      $this->qb->setParameter($datas['param'], $datas['value'], $this->_getPDOParamType($field));
+      $this->pairedValues[$field] = $datas['param'];
+    }
+    $this->qb->values($this->pairedValues);
+    $this->qb->execute();
+    $id = $this->db->lastInsertId();
     $this->pairedValues = array();
     if ($id !== false) {
       $this->_genShortUrl($id);
@@ -177,10 +241,16 @@ abstract class AModel extends AClass {
    * @return bool
    */
   final function updateItem($id) {
-    $this->db->addWhere($this->id_field, $id);
-    $success = $this->db->update($this->table, $this->pairedValues);
+    $success = $this->qb->update($this->table);
+    foreach ($this->pairedValues as $field => $datas) {
+      $this->qb->set($field, $this->qb->createNamedParameter($datas['value'], $this->_getPDOParamType($field), $datas['param']));
+    }
+    $felt = $this->qb->expr()->eq($this->id_field, $this->qb->createNamedParameter($id));
+    $this->qb->where($felt);
+
+    $this->qb->execute();
     $this->pairedValues = array();
-    if ($success === true) {
+    if ($success) {
       $this->_genShortUrl($id);
     } else {
       Log::write("updateItem() sikertelen.", true, false, 1);
@@ -211,8 +281,13 @@ abstract class AModel extends AClass {
       $fields = array_keys($this->fields);
     }
     if (in_array($f, $fields)) {
-      $value = $this->_correctize($f, $value);
-      $this->pairedValues[$f] = $value;
+      //$value = $this->_correctize($f, $value);
+      //$this->pairedValues[$f] = $value;
+      $this->pairedValues[$f] = array(
+        'param' => ':' . $f,
+        'type' => $this->fields[$f]->getType()->getName(),
+        'value' => $value
+      );
       return true;
     }
     return false;
@@ -248,11 +323,12 @@ abstract class AModel extends AClass {
   }
 
   private function _correctize($field, $value) {
-    $ftype = $this->fields[$field]['Type'];
+    $ftype = $this->fields[$field]->getType()->getName();
     $v = $value;
     switch (true) {
       case (strpos($ftype, 'int') !== false):
       case (strpos($ftype, 'decimal') !== false):
+      case (strpos($ftype, 'integer') !== false):
         $v = intval($v);
         break;
       case (strpos($ftype, 'float') !== false):
@@ -263,7 +339,31 @@ abstract class AModel extends AClass {
       case (strpos($ftype, 'char') !== false):
       case (strpos($ftype, 'text') !== false):
       case (strpos($ftype, 'blob') !== false):
+      case (strpos($ftype, 'string') !== false):
         $v = AEstr()->qstr($v);
+        break;
+    }
+    return $v;
+  }
+
+  private function _getPDOParamType($field) {
+    $ftype = $this->fields[$field]->getType()->getName();
+    switch (true) {
+      case (strpos($ftype, 'int') !== false):
+      case (strpos($ftype, 'decimal') !== false):
+      case (strpos($ftype, 'integer') !== false):
+        $v = \PDO::PARAM_INT;
+        break;
+      case (strpos($ftype, 'float') !== false):
+      case (strpos($ftype, 'double') !== false):
+      case (strpos($ftype, 'real') !== false):
+        $v = null;
+        break;
+      case (strpos($ftype, 'char') !== false):
+      case (strpos($ftype, 'text') !== false):
+      case (strpos($ftype, 'blob') !== false):
+      case (strpos($ftype, 'string') !== false):
+        $v = \PDO::PARAM_STR;
         break;
     }
     return $v;
