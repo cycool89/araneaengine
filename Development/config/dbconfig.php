@@ -2,29 +2,29 @@
 /**
  * Használ-e adatbázist.
  */
-define('AE_USE_DB', false);
+define('AE_USE_DB', true);
 
 if ($_SERVER['HTTP_HOST'] == 'localhost') {
-  $driv = 'mysqli';
+  $driv = 'pdo_mysql'; // Doctrine driverek (pdo_sqlite || pdo_mysql || ... )
   $host = 'localhost';
   $user = '';
   $pass = '';
   $name = '';
-  $pref = 'pre_'; //nincs kész
+  $pref = 'pre_';
 } elseif (strpos($_SERVER['HTTP_HOST'], _DOMAIN) !== false) {
-  $driv = 'mysqli';
+  $driv = 'pdo_mysql'; // Doctrine driverek (pdo_sqlite || pdo_mysql || ... )
   $host = 'localhost';
   $user = '';
   $pass = '';
   $name = '';
-  $pref = 'pre_'; //nincs kész
+  $pref = 'pre_';
 } else {
-  $driv = 'mysqli';
+  $driv = 'pdo_mysql'; // Doctrine driverek (pdo_sqlite || pdo_mysql || ... )
   $host = 'localhost';
   $user = '';
   $pass = '';
   $name = '';
-  $pref = 'pre_'; //nincs kész
+  $pref = '';
 }
 /**
  * Adatbázis driver.
@@ -47,6 +47,6 @@ define('AE_DBPASS', $pass);
  */
 define('AE_DBNAME', $name);
 /**
- * Adatbázis tábla prefix (fixme: nem működik)
+ * Adatbázis tábla prefix
  */
-define('AE_DBPREFIX', $pref); //nincs kész
+define('AE_DBPREFIX', $pref); 

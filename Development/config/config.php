@@ -18,7 +18,7 @@ Config::addEntry('Languages', array(
     'en' => 'English'
 ));
 
-Config::addEntry('DatabaseEngine', 'mysqli');
+Config::addEntry('DatabaseEngine', 'ae_Doctrine'); //  ae_PDO || ae_mysqli
 Config::addEntry('Timezone', 'Europe/Budapest');
 
 Config::addEntry('ModuleDirectory', AE_BASE_DIR . 'Modules' . DS);
