@@ -2,7 +2,7 @@
 /**
  * Használ-e adatbázist.
  */
-define('AE_USE_DB', true);
+define('AE_USE_DB', false);
 
 if ($_SERVER['HTTP_HOST'] == 'localhost') {
   $driv = 'pdo_mysql'; // Doctrine driverek (pdo_sqlite || pdo_mysql || ... )
