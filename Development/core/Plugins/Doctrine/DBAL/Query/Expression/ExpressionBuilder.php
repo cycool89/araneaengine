@@ -37,6 +37,12 @@ class ExpressionBuilder
     const LTE = '<=';
     const GT  = '>';
     const GTE = '>=';
+    const MOD = '%';
+    /** Saját */
+    const PLUS = '+';
+    const MINUS = '-';
+    const DIVIDE = '/';
+    const MULTIPLY = '*';
 
     /**
      * The DBAL Connection.
@@ -125,6 +131,31 @@ class ExpressionBuilder
     public function eq($x, $y)
     {
         return $this->comparison($x, self::EQ, $y);
+    }
+    
+    public function mod($x, $y)
+    {
+        return $this->comparison($x, self::MOD, $y);
+    }
+    
+    public function plus($x, $y)
+    {
+        return $this->comparison($x, self::PLUS, $y);
+    }
+    
+    public function minus($x, $y)
+    {
+        return $this->comparison($x, self::MINUS, $y);
+    }
+    
+    public function div($x, $y)
+    {
+        return $this->comparison($x, self::DIVIDE, $y);
+    }
+    
+    public function multiply($x, $y)
+    {
+        return $this->comparison($x, self::MULTIPLY, $y);
     }
 
     /**
