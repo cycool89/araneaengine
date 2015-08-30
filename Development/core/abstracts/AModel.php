@@ -171,7 +171,7 @@ abstract class AModel extends AClass {
 
     $this->qb->delete($this->table)
             ->where($felt)
-            -execute();
+            ->execute();
   }
 
   /**
